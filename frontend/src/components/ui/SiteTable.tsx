@@ -43,7 +43,7 @@ export default function SiteTable({
   highlightedId = null,
   title = "Sites",
   showId = false,
-  columnLabel = "Categorie",
+  columnLabel = "Category",
   pageSize = 10,
   multi = true,
 }: Props) {

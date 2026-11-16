@@ -1,3 +1,4 @@
+import { VEHICLE_TYPES, FUELS, DEFAULT_FUEL } from "@/constants/domain";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useId, useMemo, useState } from "react";
 import { createVehicle, fetchDrivers as fetchDriversApi } from "@/api/vehicles";
@@ -18,19 +19,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Plus, ChevronsUpDown, Check, X as XIcon, Users } from "lucide-react";
 
-const VEHICLE_TYPES = ["tracteur", "semi remorque", "VUL", "porteur"] as const;
-
-const CARBURANTS = [
-  "Bioethanol - ED95",
-  "Essence - Supercarburant sans plomb (95, E10, 98)",
-  "Gazole - B30",
-  "Gazole non routier",
-  "Gazole routier - B100",
-  "Gazole routier - B7",
-  "HVO - Huile vegetale hydrotee",
-  "Kerosene - Jet A1 ou A (litre)",
-  "Electricite (2022 - mix moyen)",
-] as const;
+const CARBURANTS = FUELS;
 
 type Props = {
   onCreated?: (v: Vehicle) => void;
@@ -68,7 +57,7 @@ const DEFAULTS: FormState = {
   emission_rate: "0",
   max_distance_km: "800",
   conso: "0.3",
-  carburant: "Gazole routier - B7",
+  carburant: DEFAULT_FUEL,
   equipements: "",
   fixed_cost: "0",
   driver_ids: [],
@@ -141,46 +130,46 @@ export default function VehicleForm({ onCreated, drivers: driversProp, depots: d
   const validate = (data: FormState): FormErrors => {
     const next: FormErrors = {};
 
-    if (!data.depot_id.trim()) next.depot_id = "Le depot est requis.";
-    if (!data.type.trim()) next.type = "Le type est requis.";
+    if (!data.depot_id.trim()) next.depot_id = "Depot is required.";
+    if (!data.type.trim()) next.type = "Type is required.";
 
     const weight = parseNumber(data.weight);
-    if (Number.isNaN(weight)) next.weight = "Entrez un poids valide.";
-    else if (weight <= 0) next.weight = "Le poids doit etre superieur a 0.";
+    if (Number.isNaN(weight)) next.weight = "Enter a valid weight.";
+    else if (weight <= 0) next.weight = "Weight must be greater than 0.";
 
     const surface = parseNumber(data.surface);
-    if (Number.isNaN(surface)) next.surface = "Entrez une surface valide.";
-    else if (surface <= 0) next.surface = "La surface doit etre superieure a 0.";
+    if (Number.isNaN(surface)) next.surface = "Enter a valid surface.";
+    else if (surface <= 0) next.surface = "Surface must be greater than 0.";
 
     const length = parseNumber(data.length);
-    if (Number.isNaN(length)) next.length = "Entrez une longueur valide.";
-    else if (length <= 0) next.length = "La longueur doit etre superieure a 0.";
+    if (Number.isNaN(length)) next.length = "Enter a valid length.";
+    else if (length <= 0) next.length = "Length must be greater than 0.";
 
     const height = parseNumber(data.height);
-    if (Number.isNaN(height)) next.height = "Entrez une hauteur valide.";
-    else if (height <= 0) next.height = "La hauteur doit etre superieure a 0.";
+    if (Number.isNaN(height)) next.height = "Enter a valid height.";
+    else if (height <= 0) next.height = "Height must be greater than 0.";
 
     const emission = parseNumber(data.emission_rate);
-    if (Number.isNaN(emission)) next.emission_rate = "Entrez un taux d'emission valide.";
-    else if (emission < 0) next.emission_rate = "Le taux d'emission ne peut pas etre negatif.";
+    if (Number.isNaN(emission)) next.emission_rate = "Enter a valid emission rate.";
+    else if (emission < 0) next.emission_rate = "Emission rate cannot be negative.";
 
     const maxKm = parseNumber(data.max_distance_km);
-    if (Number.isNaN(maxKm)) next.max_distance_km = "Entrez une distance maximale valide.";
-    else if (maxKm <= 0) next.max_distance_km = "La distance maximale doit etre superieure a 0.";
+    if (Number.isNaN(maxKm)) next.max_distance_km = "Enter a valid max distance.";
+    else if (maxKm <= 0) next.max_distance_km = "Max distance must be greater than 0.";
 
     const conso = parseNumber(data.conso);
-    if (Number.isNaN(conso)) next.conso = "Entrez une consommation valide.";
-    else if (conso < 0) next.conso = "La consommation ne peut pas etre negative.";
+    if (Number.isNaN(conso)) next.conso = "Enter a valid consumption.";
+    else if (conso < 0) next.conso = "Consumption cannot be negative.";
 
-    if (!data.carburant.trim()) next.carburant = "Choisissez un carburant.";
+    if (!data.carburant.trim()) next.carburant = "Choose a fuel.";
 
     const fixedRaw = data.fixed_cost.trim();
     if (fixedRaw !== "") {
       const fixedCost = parseNumber(data.fixed_cost);
-      if (Number.isNaN(fixedCost) || fixedCost < 0) next.fixed_cost = "Le cout fixe doit etre positif.";
+      if (Number.isNaN(fixedCost) || fixedCost < 0) next.fixed_cost = "Fixed cost must be positive.";
     }
 
-    if (!data.driver_ids.length) next.driver_ids = "Sélectionnez au moins un chauffeur.";
+    if (!data.driver_ids.length) next.driver_ids = "Select at least one driver.";
 
     return next;
   };
@@ -226,7 +215,7 @@ export default function VehicleForm({ onCreated, drivers: driversProp, depots: d
     } catch {
       setErrors((prev) => ({
         ...prev,
-        _form: "La creation a echoue. Verifiez les champs ou reessayez.",
+        _form: "Creation failed. Check the fields and try again.",
       }));
     } finally {
       setSubmitting(false);
@@ -240,7 +229,7 @@ export default function VehicleForm({ onCreated, drivers: driversProp, depots: d
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Plus className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
-          Ajouter un Vehicule
+          Add a vehicle
         </CardTitle>
       </CardHeader>
 
@@ -248,12 +237,12 @@ export default function VehicleForm({ onCreated, drivers: driversProp, depots: d
         <form className="space-y-4" onSubmit={handleSubmit} noValidate>
           <div>
             <Label className="mb-2 block" htmlFor={labelId}>
-              Vehicule
+              Vehicle
             </Label>
             <Input
               id={labelId}
               value={form.label}
-              placeholder="Ex: Frigo #12, Camion regional, etc."
+              placeholder="e.g. Reefer #12, Regional truck"
               onChange={(e) => handleChange("label", e.target.value)}
             />
           </div>
@@ -268,7 +257,7 @@ export default function VehicleForm({ onCreated, drivers: driversProp, depots: d
               disabled={depots.length === 0}
             >
               <SelectTrigger id={depotId} aria-invalid={Boolean(errors.depot_id)}>
-                <SelectValue placeholder={depots.length ? "Choisir un depot" : "Aucun depot disponible"} />
+                <SelectValue placeholder={depots.length ? "Choose a depot" : "No depot available"} />
               </SelectTrigger>
               <SelectContent>
                 {depots.map((d) => (
@@ -280,7 +269,7 @@ export default function VehicleForm({ onCreated, drivers: driversProp, depots: d
             </Select>
             {errors.depot_id && <p className="mt-1 text-sm text-red-600">{errors.depot_id}</p>}
             {depots.length === 0 && (
-              <p className="mt-1 text-xs text-muted-foreground">Ajoutez un site de categorie depot pour lier le vehicule.</p>
+              <p className="mt-1 text-xs text-muted-foreground">Add a site with category "depot" to link the vehicle.</p>
             )}
           </div>
 
@@ -290,7 +279,7 @@ export default function VehicleForm({ onCreated, drivers: driversProp, depots: d
             </Label>
             <Select value={form.type} onValueChange={(val) => handleChange("type", val)}>
               <SelectTrigger id={typeId} aria-invalid={Boolean(errors.type)}>
-                <SelectValue placeholder="Choisir un type" />
+                <SelectValue placeholder="Choose a type" />
               </SelectTrigger>
               <SelectContent>
                 {VEHICLE_TYPES.map((t) => (
@@ -306,7 +295,7 @@ export default function VehicleForm({ onCreated, drivers: driversProp, depots: d
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <Label className="mb-2 block" htmlFor={weightId}>
-                Poids (kg) <span className="text-red-500">*</span>
+                Weight (kg) <span className="text-red-500">*</span>
               </Label>
               <Input
                 id={weightId}
@@ -435,11 +424,11 @@ export default function VehicleForm({ onCreated, drivers: driversProp, depots: d
 
             <div>
               <Label className="mb-2 block" htmlFor={carburantId}>
-                Carburant <span className="text-red-500">*</span>
+                Fuel <span className="text-red-500">*</span>
               </Label>
               <Select value={form.carburant} onValueChange={(val) => handleChange("carburant", val)}>
                 <SelectTrigger id={carburantId} aria-invalid={Boolean(errors.carburant)} className="w-full min-w-0">
-                  <SelectValue placeholder="Choisir un carburant" className="truncate flex-1 min-w-0" />
+                  <SelectValue placeholder="Choose a fuel" className="truncate flex-1 min-w-0" />
                 </SelectTrigger>
                 <SelectContent>
                   {CARBURANTS.map((c) => (
@@ -457,7 +446,7 @@ export default function VehicleForm({ onCreated, drivers: driversProp, depots: d
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <Label className="mb-2 block" htmlFor={equipementsId}>
-                Equipements (separes par des virgules)
+                Equipment (comma-separated)
               </Label>
               <Input
                 id={equipementsId}
@@ -468,7 +457,7 @@ export default function VehicleForm({ onCreated, drivers: driversProp, depots: d
             </div>
             <div>
               <Label className="mb-2 block" htmlFor={fixedCostId}>
-                Cout fixe (par tournee)
+                Fixed cost (per route)
               </Label>
               <Input
                 id={fixedCostId}
@@ -486,7 +475,7 @@ export default function VehicleForm({ onCreated, drivers: driversProp, depots: d
 
           <div>
             <Label className="mb-2 block" htmlFor={driverId}>
-              Chauffeurs <span className="text-red-500">*</span>
+              Drivers <span className="text-red-500">*</span>
             </Label>
 
             <DriverMultiSelect
@@ -507,7 +496,7 @@ export default function VehicleForm({ onCreated, drivers: driversProp, depots: d
           )}
 
           <Button type="submit" className="w-full" disabled={!canSubmit} aria-busy={submitting}>
-            {submitting ? "Creation..." : "Creer"}
+            {submitting ? "Creating..." : "Create"}
           </Button>
         </form>
       </CardContent>
@@ -572,15 +561,15 @@ function DriverMultiSelect({
             aria-invalid={Boolean(error)}
           >
             <span className="truncate">
-              {value.length ? "Modifier la sélection" : "Sélectionner des chauffeurs"}
+              {value.length ? "Edit selection" : "Select drivers"}
             </span>
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
           <Command>
-            <CommandInput placeholder="Rechercher un chauffeur..." />
-            <CommandEmpty>Aucun résultat.</CommandEmpty>
+            <CommandInput placeholder="Search drivers..." />
+            <CommandEmpty>No results.</CommandEmpty>
             <ScrollArea className="max-h-64">
               <CommandGroup>
                 {allDrivers?.map((d) => {

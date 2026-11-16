@@ -1,9 +1,6 @@
 FROM python:3.11-slim
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_DISABLE_PIP_VERSION_CHECK=1
-RUN adduser --disabled-password --gecos '' appuser \
- && apt-get update \
- && apt-get install -y --no-install-recommends build-essential libpq-dev pkg-config \
- && rm -rf /var/lib/apt/lists/*
+RUN adduser --disabled-password --gecos '' appuser
 WORKDIR /app
 COPY requirements.txt .
 RUN pip install --upgrade pip \

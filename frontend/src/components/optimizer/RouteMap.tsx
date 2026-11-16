@@ -38,8 +38,8 @@ const SURFACE_SCALE_FACTOR = Number((import.meta as any)?.env?.VITE_SURFACE_SCAL
 const WEIGHT_SCALE_FACTOR  = Number((import.meta as any)?.env?.VITE_WEIGHT_SCALE_FACTOR  ?? 100);
 
 // Formatters (re-using the app's French number conventions)
-const nf0 = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 });
-const nf2 = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 2 });
+const nf0 = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 });
+const nf2 = new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 });
 
 const fmtKg = (v?: number | null) => (typeof v === 'number' ? `${nf0.format(v)} kg` : '—');
 const fmtSurface = (v?: number | null) => (typeof v === 'number' ? `${nf2.format(v)} ml` : '—');
@@ -49,7 +49,7 @@ const fmtTime = (t?: number | string | null) => {
   return '—';
 };
 
-const DEFAULT_CENTER: [number, number] = [46.603354, 1.888334]; // FR
+const DEFAULT_CENTER: [number, number] = [31.7917, -7.0926]; // Morocco
 const DEFAULT_ZOOM = 6;
 
 const safeNum = (x: unknown, fallback = 0) =>
@@ -724,11 +724,11 @@ function RouteMap({ routes, sites, vehicles, drivers, mapKey }: Props) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <MapIcon className="h-5 w-5 text-muted-foreground" aria-hidden />
-          Carte des routes
+          Route map
         </CardTitle>
         <CardDescription className="flex items-center gap-2">
           <RouteIcon className="h-4 w-4 text-muted-foreground" aria-hidden />
-          Visualisation des arrêts — affichage des noms (site, véhicule, chauffeur(s))
+          Stop view — showing names (site, vehicle, driver(s))
         </CardDescription>
       </CardHeader>
       <Separator />
@@ -759,7 +759,7 @@ function RouteMap({ routes, sites, vehicles, drivers, mapKey }: Props) {
               const errList = routingErrors[routeIndex] ?? [];
               const depotPos = depotPositions[routeIndex];
 
-              const vLabel = vehicleLabelFor(route) ?? String(route.vehicle_id ?? `Véhicule ${routeIndex + 1}`);
+              const vLabel = vehicleLabelFor(route) ?? String(route.vehicle_id ?? `Vehicle ${routeIndex + 1}`);
               const dNames = driverNamesFor(route);
 
               return (
@@ -776,12 +776,12 @@ function RouteMap({ routes, sites, vehicles, drivers, mapKey }: Props) {
                           {/* Show the depot site name when available */}
                           {(() => {
                             const depotStop = plottedByRoute[routeIndex]?.[0]?.stop;
-                            const depotName = siteNameFor(depotStop?.site_id) ?? siteNameFor(route?.stops?.[0]) ?? String(route?.depot_id ?? 'Dépôt');
+                            const depotName = siteNameFor(depotStop?.site_id) ?? siteNameFor(route?.stops?.[0]) ?? String(route?.depot_id ?? 'Depot');
                             return <div><b>{depotName}</b></div>;
                           })()}
-                          <div>Véhicule&nbsp;: {vLabel}</div>
+                          <div>Vehicle: {vLabel}</div>
                           {dNames.length > 0 && (
-                            <div>Chauffeur(s)&nbsp;: {dNames.join(', ')}</div>
+                            <div>Driver(s): {dNames.join(', ')}</div>
                           )}
                         </div>
                       </Popup>
@@ -807,7 +807,7 @@ function RouteMap({ routes, sites, vehicles, drivers, mapKey }: Props) {
                                 {weight > 0 ? `Poids : ${fmtKg(weight)}` : 'Poids : —'} &nbsp; • &nbsp; Surface : {fmtSurface(surface)}
                               </div>
                               <div className="text-xs text-muted-foreground">
-                                Arrivée&nbsp;: {fmtTime((stop as any).arrival_time)} &nbsp; • &nbsp; Départ&nbsp;: {fmtTime((stop as any).departure_time)}
+                                Arrival: {fmtTime((stop as any).arrival_time)} &nbsp; • &nbsp; Departure: {fmtTime((stop as any).departure_time)}
                               </div>
                             </div>
                         </Popup>

@@ -1,21 +1,21 @@
 from typing import List
 from route_optimizer.logging_config import get_logger
-from route_optimizer.models.schemas import Order, SiteCategoryEnum
+from route_optimizer.models.schemas import EquipementEnum, Order, SiteCategoryEnum
 
 logger = get_logger(__name__)
 
 
 # --- Same factors as in manual stats (keys must match vehicle.carburant exactly) ---
 EMISSION_FACTORS_KG_PER_L = {
-    "Bioéthanol - ED95": 0.85,
-    "Essence - Supercarburant sans plomb (95, E10, 98)": 2.70,
-    "Gazole - B30": 2.64,
-    "Gazole non routier": 3.16,
-    "Gazole routier - B100": 1.22,
-    "Gazole routier - B7": 3.10,
-    "HVO - Huile végétale hydrotraitée (sans changement d'affectation des sols)": 0.54,
-    "Kérosène - Jet A1 ou A (litre)": 3.15,
-    "Electricité (2022 - mix moyen)": 0.05,
+    "Bioethanol - ED95": 0.85,
+    "Petrol - Unleaded (95, E10, 98)": 2.70,
+    "Diesel - B30": 2.64,
+    "Off-road diesel": 3.16,
+    "Road diesel - B100": 1.22,
+    "Road diesel - B7": 3.10,
+    "HVO - Hydrotreated vegetable oil": 0.54,
+    "Kerosene - Jet A1 / A": 3.15,
+    "Electricity (2022 average mix)": 0.05,
 }
 
 
@@ -277,9 +277,9 @@ class ConstraintManager:
                     # indices, as OR-Tools expects those to stay fixed per vehicle.
                     if pickup_is_start_or_end or delivery_is_start_or_end:
                         if not pickup_is_start_or_end:
-                            routing.SetAllowedVehiclesForIndex(compatible_vehicles, pickup_idx)
+                            routing.SetAllowedVehiclesForIndex([int(v) for v in compatible_vehicles], int(pickup_idx))
                         if not delivery_is_start_or_end:
-                            routing.SetAllowedVehiclesForIndex(compatible_vehicles, delivery_idx)
+                            routing.SetAllowedVehiclesForIndex([int(v) for v in compatible_vehicles], int(delivery_idx))
                         logger.debug(
                             f"Skipped pickup/delivery pairing for order {order.order_id} "
                             f"(start/end involvement). Applied allowed vehicles to non-start nodes."
@@ -303,8 +303,8 @@ class ConstraintManager:
                     # routing.solver().Add(surface_dim.CumulVar(pickup_idx) <= surface_dim.CumulVar(delivery_idx))
                     # routing.solver().Add(weight_dim.CumulVar(pickup_idx) <= weight_dim.CumulVar(delivery_idx))
 
-                    routing.SetAllowedVehiclesForIndex(compatible_vehicles, pickup_idx)
-                    routing.SetAllowedVehiclesForIndex(compatible_vehicles, delivery_idx)
+                    routing.SetAllowedVehiclesForIndex([int(v) for v in compatible_vehicles], int(pickup_idx))
+                    routing.SetAllowedVehiclesForIndex([int(v) for v in compatible_vehicles], int(delivery_idx))
                     logger.debug(f"Set allowed vehicles for order {order.order_id}")
 
                 except KeyError as ke:
@@ -360,7 +360,7 @@ class ConstraintManager:
                 continue
 
             # Check hazardous materials
-            if order.hazardous_types and "Contenants pour matières dangereuses" not in vehicle.equipements:
+            if order.hazardous_types and EquipementEnum.HAZARDOUS_MATERIAL_CONTAINER not in vehicle.equipements:
                 logger.debug(f"Vehicle {i} lacks hazardous materials containers")
                 continue
 

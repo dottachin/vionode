@@ -276,7 +276,7 @@ interface Props {
   color?: string;
 }
 
-const DEFAULT_CENTER: [number, number] = [46.603354, 1.888334]; // France
+const DEFAULT_CENTER: [number, number] = [31.7917, -7.0926]; // Morocco
 const DEFAULT_ZOOM = 6;
 
 function FitToPoints({ points }: { points: [number, number][] }) {
@@ -443,8 +443,8 @@ function MilkRunMap({
   const driverName = getDriverName(driver);
 
   // Formatters
-  const nf0 = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 });
-  const nf2 = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 2 });
+  const nf0 = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 });
+  const nf2 = new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 });
   const fmtKg = (v?: number | null) => (typeof v === 'number' ? `${nf0.format(v)} kg` : '—');
   const fmtSurface = (v?: number | null) => (typeof v === 'number' ? `${nf2.format(v)} ml` : '—');
   const fmtTime = (t?: number | string | null) => {
@@ -543,12 +543,12 @@ function MilkRunMap({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <MapIcon className="h-5 w-5 text-muted-foreground" aria-hidden />
-          Carte du milk run
+          Milk run map
         </CardTitle>
         <CardDescription className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-          <span className="inline-flex items-center gap-1"><RouteIcon className="h-4 w-4" aria-hidden /> Itinéraire</span>
-          {vehicleLabel && <span>• Véhicule: <b>{vehicleLabel}</b></span>}
-          {driverName && <span>• Chauffeur: <b>{driverName}</b></span>}
+          <span className="inline-flex items-center gap-1"><RouteIcon className="h-4 w-4" aria-hidden /> Route</span>
+          {vehicleLabel && <span>• Vehicle: <b>{vehicleLabel}</b></span>}
+          {driverName && <span>• Driver: <b>{driverName}</b></span>}
         </CardDescription>
       </CardHeader>
       <Separator />
@@ -581,9 +581,9 @@ function MilkRunMap({
                   <Popup>
                       <div className="space-y-0.5">
                         <div><b>{getSiteName(depot) ?? '—'}</b></div>
-                        <div className="text-xs text-muted-foreground">Dépôt</div>
-                        {vehicleLabel && <div>Véhicule: {vehicleLabel}</div>}
-                        {driverName && <div>Chauffeur: {driverName}</div>}
+                        <div className="text-xs text-muted-foreground">Depot</div>
+                        {vehicleLabel && <div>Vehicle: {vehicleLabel}</div>}
+                        {driverName && <div>Driver: {driverName}</div>}
                       </div>
                     </Popup>
                 </Marker>
@@ -612,7 +612,7 @@ function MilkRunMap({
                       {/* optional demand fields */}
                       {typeof (site as any).demand_weight === 'number' || typeof (site as any).demand_surface === 'number' ? (
                         <div className="text-xs text-muted-foreground">
-                          {typeof (site as any).demand_weight === 'number' ? `Poids: ${fmtKg((site as any).demand_weight)}` : ''}
+                          {typeof (site as any).demand_weight === 'number' ? `Weight: ${fmtKg((site as any).demand_weight)}` : ''}
                           {typeof (site as any).demand_weight === 'number' && typeof (site as any).demand_surface === 'number' ? ' • ' : ''}
                           {typeof (site as any).demand_surface === 'number' ? `Surface: ${fmtSurface((site as any).demand_surface)}` : ''}
                         </div>

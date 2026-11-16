@@ -1,3 +1,4 @@
+import { SITE_CATEGORIES } from "@/constants/domain";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { memo, useMemo, useState } from "react";
 import { createSite } from "@/api/site";
@@ -16,18 +17,7 @@ type Props = {
   categories?: string[];
 };
 
-const DEFAULT_CATEGORIES = [
-  "ATELIER",
-  "COMPOSANT",
-  "DEPOT",
-  "FACONNIER",
-  "FOURNISSEUR",
-  "ATELIER ITALIEN",
-  "FOURNISSEUR EXW",
-  "HUB",
-  "FOURNISSEUR EXW ITALIEN",
-  "FOURNISSEUR ITALIEN",
-];
+const DEFAULT_CATEGORIES: string[] = [...SITE_CATEGORIES];
 
 // --- time helpers ---
 const secondsToHHMM = (sec?: number) => {
@@ -137,41 +127,41 @@ function SiteForm({ onCreated, categories }: Props) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <PlusCircle className="h-5 w-5 text-muted-foreground" aria-hidden />
-          Ajouter un site
+          Add a site
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
           <Label htmlFor="site-name" className="mb-2 block">
-            Nom
+            Name
           </Label>
           <Input
             id="site-name"
             value={form.name}
             onChange={(e) => setField("name", e.target.value)}
-            placeholder="ex: Entrepôt Est"
+            placeholder="e.g. East Warehouse"
           />
         </div>
 
         <div>
           <Label htmlFor="site-address" className="mb-2 block">
-            Adresse
+            Address
           </Label>
           <Input
             id="site-address"
             value={form.address}
             onChange={(e) => setField("address", e.target.value)}
-            placeholder="ex: 12 rue des Fleurs, Lyon"
+            placeholder="e.g. 12 Boulevard Mohammed V, Casablanca"
           />
         </div>
 
         <div>
           <Label htmlFor="site-category" className="mb-2 block">
-            Catégorie
+            Category
           </Label>
           <Select value={form.category} onValueChange={(v) => setField("category", v)}>
             <SelectTrigger id="site-category">
-              <SelectValue placeholder="Sélectionner…" />
+              <SelectValue placeholder="Select…" />
             </SelectTrigger>
             <SelectContent>
               {CATS.map((c) => (
@@ -225,7 +215,7 @@ function SiteForm({ onCreated, categories }: Props) {
             <Label htmlFor="open" className="mb-2 block">
               <span className="inline-flex items-center gap-2">
                 <Clock className="h-4 w-4 text-muted-foreground" aria-hidden />
-                Ouverture
+                Opening
               </span>
             </Label>
             <Input
@@ -239,7 +229,7 @@ function SiteForm({ onCreated, categories }: Props) {
             <Label htmlFor="close" className="mb-2 block">
               <span className="inline-flex items-center gap-2">
                 <Clock className="h-4 w-4 text-muted-foreground" aria-hidden />
-                Fermeture
+                Closing
               </span>
             </Label>
             <Input
@@ -255,7 +245,7 @@ function SiteForm({ onCreated, categories }: Props) {
           <Label htmlFor="service" className="mb-2 block">
             <span className="inline-flex items-center gap-2">
               <Building2 className="h-4 w-4 text-muted-foreground" aria-hidden />
-              Chargement/Déchargement
+              Loading/Unloading
             </span>
           </Label>
           <Input
@@ -270,7 +260,7 @@ function SiteForm({ onCreated, categories }: Props) {
 
         <Button className="mt-2 w-full gap-2" onClick={handleSubmit} disabled={busy}>
           <PlusCircle className="h-4 w-4" />
-          {busy ? "Création…" : "Créer le site"}
+          {busy ? "Creating…" : "Create site"}
         </Button>
       </CardContent>
     </Card>

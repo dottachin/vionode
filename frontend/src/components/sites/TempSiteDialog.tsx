@@ -55,16 +55,16 @@ export function TempSiteDialog({ trigger, onCreate, defaultCategory = "client" }
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Ajouter un site temporaire</DialogTitle>
+          <DialogTitle>Add a temporary site</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
           <div className="space-y-1">
-            <Label>Nom</Label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Site temporaire" />
+            <Label>Name</Label>
+            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Temporary site" />
           </div>
           <div className="space-y-1">
-            <Label>Adresse</Label>
-            <Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Adresse" />
+            <Label>Address</Label>
+            <Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Address" />
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div className="space-y-1">
@@ -77,10 +77,10 @@ export function TempSiteDialog({ trigger, onCreate, defaultCategory = "client" }
             </div>
           </div>
           <div className="space-y-1">
-            <Label>Catégorie</Label>
+            <Label>Category</Label>
             <Select value={category} onValueChange={setCategory}>
               <SelectTrigger>
-                <SelectValue placeholder="Choisir" />
+                <SelectValue placeholder="Choose" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="client">Client</SelectItem>
@@ -89,7 +89,7 @@ export function TempSiteDialog({ trigger, onCreate, defaultCategory = "client" }
             </Select>
           </div>
           <Button onClick={handleCreate} disabled={!canCreate} className="w-full">
-            Créer
+            Create
           </Button>
         </div>
       </DialogContent>

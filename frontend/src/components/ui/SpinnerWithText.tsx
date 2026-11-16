@@ -25,7 +25,7 @@ function toMMSS(totalSec: number | undefined) {
 }
 
 export default function SpinnerWithText({
-  label = "Chargement…",
+  label = "Loading…",
   progressPct,
   elapsedSec = 0,
   expectedSec,

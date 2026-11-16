@@ -61,10 +61,10 @@ export default function FleetManager() {
       setSites(s);
     } catch {
       if (!signal?.aborted) {
-        const msg = "Impossible de charger les données. Réessayez.";
+        const msg = "Could not load data. Please try again.";
         setError(msg);
         if (!silent) {
-          toast.error("Erreur de chargement", { description: msg });
+          toast.error("Loading error", { description: msg });
         }
       }
     } finally {
@@ -92,15 +92,15 @@ export default function FleetManager() {
   controllerRef.current = controller;
 
   const toastId = "load-data"; // 👈 stable id
-  toast.loading("Chargement des données…", { id: toastId });
+  toast.loading("Loading data…", { id: toastId });
 
   loadData(controller.signal, false)
     .then(() => {
-      toast.success("Données chargées", { id: toastId });
+      toast.success("Data loaded", { id: toastId });
     })
     .catch((err) => {
       if (err.name !== "AbortError") {
-        toast.error("Erreur lors du chargement", { id: toastId });
+        toast.error("Error while loading", { id: toastId });
       }
     });
 
@@ -113,8 +113,8 @@ export default function FleetManager() {
 
   const headerSubtitle = useMemo(() => {
     const parts = [
-      `${vehicleCount} véhicule${vehicleCount > 1 ? "s" : ""}`,
-      `${driverCount} chauffeur${driverCount > 1 ? "s" : ""}`,
+      `${vehicleCount} vehicle${vehicleCount > 1 ? "s" : ""}`,
+      `${driverCount} driver${driverCount > 1 ? "s" : ""}`,
     ];
     return parts.join(" · ");
   }, [vehicleCount, driverCount]);
@@ -139,11 +139,11 @@ export default function FleetManager() {
         <div>
           <h1 className="flex items-center gap-2 text-3xl font-bold">
             <Truck className="h-7 w-7 text-muted-foreground" aria-hidden="true" />
-            Gestion de Flotte
+            Fleet management
             {refreshing && (
               <Loader2
                 className="ml-2 h-5 w-5 animate-spin text-muted-foreground"
-                aria-label="Actualisation en arrière-plan"
+                aria-label="Refreshing in background"
               />
             )}
           </h1>
@@ -156,13 +156,13 @@ export default function FleetManager() {
             <DialogTrigger asChild>
               <Button type="button" className="inline-flex items-center gap-2">
                 <Plus className="h-4 w-4" aria-hidden="true" />
-                Nouveau véhicule
+                New vehicle
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[640px]">
               <DialogHeader>
-                <DialogTitle>Ajouter un véhicule</DialogTitle>
-                <DialogDescription>Renseignez les informations du véhicule.</DialogDescription>
+                <DialogTitle>Add a vehicle</DialogTitle>
+                <DialogDescription>Enter the vehicle details.</DialogDescription>
               </DialogHeader>
               <div className="pt-2">
                 <VehicleForm
@@ -172,7 +172,7 @@ export default function FleetManager() {
                     if (created && created.id_vehicule) {
                       setVehicles((prev) => [created, ...prev]);
                     }
-                    toast.success("Véhicule créé");
+                    toast.success("Vehicle created");
                     setVehicleOpen(false);
                     // Soft reload to sync with server (silent)
                     await softRefresh();
@@ -187,13 +187,13 @@ export default function FleetManager() {
             <DialogTrigger asChild>
               <Button type="button" className="inline-flex items-center gap-2">
                 <Plus className="h-4 w-4" aria-hidden="true" />
-                Nouveau chauffeur
+                New driver
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[560px]">
               <DialogHeader>
-                <DialogTitle>Ajouter un chauffeur</DialogTitle>
-                <DialogDescription>Renseignez les informations du chauffeur.</DialogDescription>
+                <DialogTitle>Add a driver</DialogTitle>
+                <DialogDescription>Enter the driver details.</DialogDescription>
               </DialogHeader>
               <div className="pt-2">
                 <DriverForm
@@ -201,7 +201,7 @@ export default function FleetManager() {
                     if (created && created.id) {
                       setDrivers((prev) => [created, ...prev]);
                     }
-                    toast.success("Chauffeur créé");
+                    toast.success("Driver created");
                     setDriverOpen(false);
                     // Soft reload to sync vehicles list with potential availability rules
                     await softRefresh();
@@ -216,7 +216,7 @@ export default function FleetManager() {
       {/* Vehicles */}
       <section aria-labelledby="vehicles-heading" className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 id="vehicles-heading" className="text-2xl font-semibold">Véhicules</h2>
+          <h2 id="vehicles-heading" className="text-2xl font-semibold">Vehicles</h2>
         </div>
 
         {loading ? (
@@ -231,7 +231,7 @@ export default function FleetManager() {
           <Card>
             <CardContent className="p-6">
               <p className="text-sm text-muted-foreground">
-                Aucun véhicule pour le moment. Cliquez sur <b>Nouveau véhicule</b> pour en ajouter.
+                No vehicles yet. Click <b>New vehicle</b> to add one.
               </p>
             </CardContent>
           </Card>
@@ -253,14 +253,14 @@ export default function FleetManager() {
 
               try {
                 await updateVehicle(Number(id), updates as any);
-                toast.success("Véhicule mis à jour");
+                toast.success("Vehicle updated");
                 // Soft reload in background to reconcile with server state
                 await softRefresh();
               } catch (err) {
                 // rollback by refetching (visible)
                 await loadData(undefined, false);
-                toast.error("Échec de la mise à jour", {
-                  description: "La modification du véhicule n’a pas été enregistrée.",
+                toast.error("Update failed", {
+                  description: "The vehicle change was not saved.",
                 });
                 console.error(err);
               }
@@ -270,12 +270,12 @@ export default function FleetManager() {
               setVehicles((prev) => prev.filter((v) => String(v.id_vehicule) !== String(id)));
               try {
                 await deleteVehicle(Number(id));
-                toast.success("Véhicule supprimé");
+                toast.success("Vehicle deleted");
                 await softRefresh();
               } catch (e) {
                 await loadData(undefined, false); // rollback
-                toast.error("Échec de la suppression", {
-                  description: "Impossible de supprimer le véhicule.",
+                toast.error("Delete failed", {
+                  description: "Could not delete the vehicle.",
                 });
                 console.error(e);
               }
@@ -287,7 +287,7 @@ export default function FleetManager() {
       {/* Drivers */}
       <section aria-labelledby="drivers-heading" className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 id="drivers-heading" className="text-2xl font-semibold">Chauffeurs</h2>
+          <h2 id="drivers-heading" className="text-2xl font-semibold">Drivers</h2>
         </div>
 
         {loading ? (
@@ -302,7 +302,7 @@ export default function FleetManager() {
           <Card>
             <CardContent className="p-6">
               <p className="text-sm text-muted-foreground">
-                Aucun chauffeur pour le moment. Cliquez sur <b>Nouveau chauffeur</b> pour en ajouter.
+                No drivers yet. Click <b>New driver</b> to add one.
               </p>
             </CardContent>
           </Card>
@@ -319,12 +319,12 @@ export default function FleetManager() {
               );
               try {
                 await updateDriver(Number(id), updates);
-                toast.success("Chauffeur mis à jour");
+                toast.success("Driver updated");
                 await softRefresh();
               } catch (e) {
                 await loadData(undefined, false); // rollback
-                toast.error("Échec de la mise à jour", {
-                  description: "La modification du chauffeur n’a pas été enregistrée.",
+                toast.error("Update failed", {
+                  description: "The driver change was not saved.",
                 });
                 console.error(e);
               }
@@ -334,13 +334,13 @@ export default function FleetManager() {
               setDrivers((prev) => prev.filter((d) => String(d.id) !== String(id)));
               try {
                 await deleteDriver(Number(id));
-                toast.success("Chauffeur supprimé");
+                toast.success("Driver deleted");
                 // Vehicles might reference this driver; refresh to reconcile
                 await softRefresh();
               } catch (e) {
                 await loadData(undefined, false); // rollback
-                toast.error("Échec de la suppression", {
-                  description: "Impossible de supprimer le chauffeur.",
+                toast.error("Delete failed", {
+                  description: "Could not delete the driver.",
                 });
                 console.error(e);
               }

@@ -193,7 +193,7 @@ export default function OptimizationGlobal() {
         setSelectedVehicleIds(normalizedVehicles.map((veh: any) => veh.id_vehicule));
       } catch (e) {
         console.error(e);
-        toast.error("Échec du chargement", { description: "Impossible de charger les sites, véhicules ou chauffeurs." });
+        toast.error("Loading failed", { description: "Could not load sites, vehicles or drivers." });
       }
     })();
   }, []);
@@ -232,7 +232,7 @@ export default function OptimizationGlobal() {
       if (c) codes.add(c);
     }
     const sorted = Array.from(codes).sort();
-    return [{ value: "", label: "Tous les pays" }, ...sorted.map((c) => ({ value: c, label: c }))];
+    return [{ value: "", label: "All countries" }, ...sorted.map((c) => ({ value: c, label: c }))];
   }, [allSites]);
 
   const filteredDepots = useMemo(() => {
@@ -283,18 +283,18 @@ export default function OptimizationGlobal() {
 
   const selectionStats = useMemo(
     () => [
-      { label: "Dépôts", value: selectedDepotIds.length, total: depots.length },
+      { label: "Depots", value: selectedDepotIds.length, total: depots.length },
       { label: "Sites", value: selectedSiteIds.length, total: clientSites.length },
-      { label: "Véhicules", value: selectedVehicleIds.length, total: vehicles.length },
+      { label: "Vehicles", value: selectedVehicleIds.length, total: vehicles.length },
     ],
     [clientSites.length, depots.length, selectedDepotIds.length, selectedSiteIds.length, selectedVehicleIds.length, vehicles.length]
   );
 
   const preflightIssues = useMemo(() => {
     const issues: string[] = [];
-    if (!selectedDepotIds.length) issues.push("Sélectionnez au moins un dépôt");
-    if (!selectedSiteIds.length) issues.push("Sélectionnez au moins un site à livrer");
-    if (!selectedVehicleIds.length) issues.push("Sélectionnez au moins un véhicule");
+    if (!selectedDepotIds.length) issues.push("Select at least one depot");
+    if (!selectedSiteIds.length) issues.push("Select at least one delivery site");
+    if (!selectedVehicleIds.length) issues.push("Select at least one vehicle");
     return issues;
   }, [selectedDepotIds.length, selectedSiteIds.length, selectedVehicleIds.length]);
 
@@ -356,8 +356,8 @@ export default function OptimizationGlobal() {
       setSavedConfigs(Array.isArray(rows) ? rows : []);
     } catch (e: any) {
       console.error(e);
-      setSavedError("Impossible de charger les configurations.");
-      toast.error("Échec du chargement des configurations");
+      setSavedError("Could not load configurations.");
+      toast.error("Failed to load configurations");
     } finally {
       setSavedLoading(false);
     }
@@ -397,15 +397,15 @@ export default function OptimizationGlobal() {
 
   const handleRun = async () => {
     if (selectedDepotIds.length === 0) {
-      toast.warning("Dépôt requis", { description: "Sélectionnez au moins un dépôt avant de lancer." });
+      toast.warning("Depot required", { description: "Select at least one depot before running." });
       return;
     }
     if (selectedSiteIds.length === 0) {
-      toast.warning("Sites requis", { description: "Sélectionnez au moins un site à livrer." });
+      toast.warning("Sites required", { description: "Select at least one delivery site." });
       return;
     }
     if (selectedVehicleIds.length === 0) {
-      toast.warning("Véhicules requis", { description: "Sélectionnez au moins un véhicule." });
+      toast.warning("Vehicles required", { description: "Select at least one vehicle." });
       return;
     }
 
@@ -489,10 +489,10 @@ export default function OptimizationGlobal() {
       setLastHasTempSites(hasTempInSelection);
       setLastSolverRunId((res as any).solver_run_id ?? null);
       setLastResultId((res as any).result_id ?? null);
-      toast.success("Optimisation terminée");
+      toast.success("Optimization complete");
     } catch (e) {
       console.error(e);
-      toast.error("Échec de l'optimisation");
+      toast.error("Optimization failed");
     } finally {
       stopRunTimer();
       setRunning(false);
@@ -501,15 +501,15 @@ export default function OptimizationGlobal() {
 
   const handleSaveOptimization = async (name: string) => {
     if (lastHasTempSites) {
-      toast.error("Impossible de sauvegarder", { description: "Enregistrez d'abord les sites temporaires." });
+      toast.error("Cannot save", { description: "Save the temporary sites first." });
       return;
     }
     if (!lastMetrics || !lastResult || !lastParams || !lastDepotIds?.length || !lastSiteIds?.length) {
-      toast.error("Données insuffisantes pour sauvegarder");
+      toast.error("Not enough data to save");
       return;
     }
     if (!lastVehicleIds?.length) {
-      toast.error("Aucun véhicule à sauvegarder");
+      toast.error("No vehicles to save");
       return;
     }
 
@@ -529,10 +529,10 @@ export default function OptimizationGlobal() {
     try {
       setSavingOptimization(true);
       await saveGlobalOptimization(payload);
-      toast.success("Optimisation globale sauvegardée");
+      toast.success("Global optimization saved");
     } catch (e) {
       console.error(e);
-      toast.error("Échec de la sauvegarde", { description: "Vérifiez l'API backend." });
+      toast.error("Save failed", { description: "Check the backend API." });
     } finally {
       setSavingOptimization(false);
       stopRunTimer();
@@ -542,17 +542,17 @@ export default function OptimizationGlobal() {
 
   const handleSaveConfiguration = async () => {
     if (selectedDepotIds.length === 0) {
-      toast.warning("Dépôt requis", { description: "Sélectionnez au moins un dépôt avant d'enregistrer." });
+      toast.warning("Depot required", { description: "Select at least one depot before saving." });
       return;
     }
     if (selectedVehicleIds.length === 0) {
-      toast.warning("Véhicules requis", { description: "Sélectionnez au moins un véhicule avant d'enregistrer." });
+      toast.warning("Vehicles required", { description: "Select at least one vehicle before saving." });
       return;
     }
     const slackSeconds = Math.max(0, Math.round(slackMinutes)) * 60;
 
     if ([...selectedDepotIds, ...selectedSiteIds].some((id) => String(id).startsWith("temp-"))) {
-      toast.error("Sites temporaires", { description: "Enregistrez les sites temporaires avant de sauvegarder." });
+      toast.error("Temporary sites", { description: "Save the temporary sites before saving." });
       return;
     }
 
@@ -577,10 +577,10 @@ export default function OptimizationGlobal() {
     try {
       setSavingConfig(true);
       await saveGlobalOptimization(payload);
-      toast.success("Configuration sauvegardée", { description: "Paramètres enregistrés sans lancer l'optimisation." });
+      toast.success("Configuration saved", { description: "Parameters saved without running the optimization." });
     } catch (e) {
       console.error(e);
-      toast.error("Échec de la sauvegarde de la configuration");
+      toast.error("Failed to save configuration");
     } finally {
       setSavingConfig(false);
     }
@@ -628,34 +628,34 @@ export default function OptimizationGlobal() {
 
     setResult((cfg.result as OptimizerResult) ?? null);
 
-    toast.success("Configuration chargée", {
+    toast.success("Configuration loaded", {
       description: cfg.name || `#${cfg.id}`,
     });
   };
 
   const handleRenameConfig = async (cfg: GlobalOptimizationRecord) => {
-    const next = window.prompt("Nouveau nom", cfg.name || `Configuration #${cfg.id}`);
+    const next = window.prompt("New name", cfg.name || `Configuration #${cfg.id}`);
     if (next === null) return;
     try {
       await updateGlobalOptimization(cfg.id, { name: next.trim() || null });
-      toast.success("Configuration renommée");
+      toast.success("Configuration renamed");
       await refreshSavedConfigs();
     } catch (e) {
       console.error(e);
-      toast.error("Échec du renommage");
+      toast.error("Rename failed");
     }
   };
 
   const handleDeleteConfig = async (cfg: GlobalOptimizationRecord) => {
-    const ok = window.confirm(`Supprimer "${cfg.name || cfg.id}" ?`);
+    const ok = window.confirm(`Delete "${cfg.name || cfg.id}"?`);
     if (!ok) return;
     try {
       await deleteGlobalOptimization(cfg.id);
-      toast.success("Configuration supprimée");
+      toast.success("Configuration deleted");
       await refreshSavedConfigs();
     } catch (e) {
       console.error(e);
-      toast.error("Échec de la suppression");
+      toast.error("Delete failed");
     }
   };
 
@@ -664,7 +664,7 @@ export default function OptimizationGlobal() {
     const depotId = String(route?.depot_id ?? selectedDepotIds[0] ?? "");
 
     if (!depotId) {
-      toast.error("Dépôt manquant", { description: "Impossible de déterminer le dépôt pour ce véhicule." });
+      toast.error("Missing depot", { description: "Could not determine the depot for this vehicle." });
       return;
     }
 
@@ -678,26 +678,26 @@ export default function OptimizationGlobal() {
     );
 
     if (!siteIds.length) {
-      toast.warning("Aucun site à enregistrer", { description: "Ce parcours ne contient aucun site client à enregistrer." });
+      toast.warning("No sites to save", { description: "This route contains no client sites to save." });
       return;
     }
 
     if (siteIds.some((id) => id.startsWith("temp-"))) {
-      toast.error("Sites temporaires", { description: "Enregistrez les sites temporaires avant de créer un parcours." });
+      toast.error("Temporary sites", { description: "Save the temporary sites before creating a route." });
       return;
     }
 
     const defaultName = `MR-${vehId}`;
-    const name = window.prompt("Nom du parcours", defaultName);
+    const name = window.prompt("Route name", defaultName);
     if (!name) return;
 
     try {
       setSavingRouteId(vehId);
       await createMilkRun({ name: name.trim(), site_ids: siteIds, depot_id: depotId });
-      toast.success("Parcours créé", { description: `${name.trim()} (${siteIds.length} sites)` });
+      toast.success("Route created", { description: `${name.trim()} (${siteIds.length} sites)` });
     } catch (e) {
       console.error(e);
-      toast.error("Impossible de créer le parcours");
+      toast.error("Could not create the route");
     } finally {
       setSavingRouteId(null);
     }
@@ -711,12 +711,12 @@ export default function OptimizationGlobal() {
             <div className="space-y-1">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Rocket className="h-5 w-5 text-blue-600" aria-hidden />
-                Optimisation globale des itinéraires
+                Global route optimization
               </CardTitle>
-              <CardDescription>Optimisation multi-dépôts et multi-véhicules avec contrôles du solveur.</CardDescription>
+              <CardDescription>Multi-depot, multi-vehicle optimization with solver controls.</CardDescription>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              {(preflightIssues.length ? preflightIssues : ["Prêt à lancer"]).map((item) => (
+              {(preflightIssues.length ? preflightIssues : ["Ready to run"]).map((item) => (
                 <Badge key={item} color={preflightIssues.length ? "warning" : "success"} variant="flat">
                   {item}
                 </Badge>
@@ -747,7 +747,7 @@ export default function OptimizationGlobal() {
             >
               <div className="flex items-center gap-2">
                 {running ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : <Rocket className="h-4 w-4" aria-hidden />}
-                <span>{running ? `Optimisation en cours (${formatElapsed(elapsedSec)})` : "Lancer l’optimisation"}</span>
+                <span>{running ? `Optimizing (${formatElapsed(elapsedSec)})` : "Run optimization"}</span>
               </div>
             </RButton>
             <TempSiteDialog
@@ -756,17 +756,17 @@ export default function OptimizationGlobal() {
                   variant="outline"
                   size="md"
                   className="inline-flex items-center gap-2 border-border/70 ring-1 ring-primary/20 shadow-sm"
-                  aria-label="Ajouter un site temporaire"
-                  title="Ajouter un site temporaire"
+                  aria-label="Add a temporary site"
+                  title="Add a temporary site"
                 >
                   <Plus className="h-4 w-4" aria-hidden />
-                  Ajouter un site temporaire
+                  Add a temporary site
                 </RButton>
               }
               onCreate={(site) => setTempSites((prev) => [...prev, site])}
             />
             <RButton variant="text" size="md" onClick={clearResult}>
-              Effacer le résultat précédent
+              Clear previous result
             </RButton>
             <RButton
               variant="outline"
@@ -775,7 +775,7 @@ export default function OptimizationGlobal() {
               disabled={savingConfig}
               className="inline-flex items-center gap-2"
             >
-              {savingConfig ? "Sauvegarde..." : "Sauvegarder la configuration"}
+              {savingConfig ? "Saving..." : "Save configuration"}
             </RButton>
           </div>
 
@@ -792,16 +792,16 @@ export default function OptimizationGlobal() {
 
           <div className="flex flex-wrap items-center gap-2">
             <RButton variant="flat" size="sm" onClick={selectAllDepots}>
-              Utiliser tous les dépôts
+              Use all depots
             </RButton>
             <RButton variant="flat" size="sm" onClick={selectAllSites}>
-              Utiliser tous les sites
+              Use all sites
             </RButton>
             <RButton variant="flat" size="sm" onClick={selectAllVehicles}>
-              Utiliser tous les véhicules
+              Use all vehicles
             </RButton>
             <RButton variant="text" size="sm" onClick={clearSelections}>
-              Effacer les sélections
+              Clear selections
             </RButton>
           </div>
         </CardContent>
@@ -812,19 +812,19 @@ export default function OptimizationGlobal() {
           <div className="flex items-center gap-2">
             <FolderOpen className="h-5 w-5 text-blue-600" aria-hidden />
             <div>
-              <CardTitle className="text-lg">Configurations sauvegardées</CardTitle>
-              <CardDescription>Rechargez ou nettoyez vos configurations globales avant exécution.</CardDescription>
+              <CardTitle className="text-lg">Saved configurations</CardTitle>
+              <CardDescription>Reload or clean up your global configurations before running.</CardDescription>
             </div>
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            {savedLoading ? "Chargement..." : savedConfigs.length ? `${savedConfigs.length} élément(s)` : "Aucune configuration"}
+            {savedLoading ? "Loading..." : savedConfigs.length ? `${savedConfigs.length} item(s)` : "No configurations"}
             {savedError ? <span className="text-destructive">({savedError})</span> : null}
           </div>
         </CardHeader>
         <Separator />
         <CardContent className="space-y-3">
           {savedConfigs.length === 0 ? (
-            <div className="text-sm text-muted-foreground">Aucune configuration enregistrée pour l'instant.</div>
+            <div className="text-sm text-muted-foreground">No saved configurations yet.</div>
           ) : (
             savedConfigs.slice(0, 10).map((cfg) => (
               <div
@@ -837,15 +837,15 @@ export default function OptimizationGlobal() {
                     {cfg.created_at ? new Date(cfg.created_at).toLocaleString() : ""}
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    {cfg.depot_ids?.length ?? 0} dépôts · {cfg.site_ids?.length ?? 0} sites · {cfg.vehicle_ids?.length ?? 0} véhicules
+                    {cfg.depot_ids?.length ?? 0} depots · {cfg.site_ids?.length ?? 0} sites · {cfg.vehicle_ids?.length ?? 0} vehicles
                   </div>
                 </div>
                 <div className="ml-auto flex flex-wrap items-center gap-2">
                   <RButton size="sm" variant="outline" onClick={() => applySavedConfig(cfg)}>
-                    Charger
+                    Load
                   </RButton>
                   <RButton size="sm" variant="outline" onClick={() => handleRenameConfig(cfg)}>
-                    Renommer
+                    Rename
                   </RButton>
                   <RButton
                     size="sm"
@@ -853,7 +853,7 @@ export default function OptimizationGlobal() {
                     className="text-red-600 border-red-200 hover:bg-red-50"
                     onClick={() => handleDeleteConfig(cfg)}
                   >
-                    Supprimer
+                    Delete
                   </RButton>
                 </div>
               </div>
@@ -867,33 +867,33 @@ export default function OptimizationGlobal() {
           <div>
             <CardTitle className="flex items-center gap-2 text-lg">
               <Warehouse className="h-5 w-5 text-blue-600" aria-hidden />
-              Sélections
+              Selections
             </CardTitle>
-            <CardDescription>Mêmes sélecteurs de recherche que pour Parcours / Commandes.</CardDescription>
+            <CardDescription>Same search selectors as for Routes / Orders.</CardDescription>
           </div>
         </CardHeader>
         <Separator />
         <CardContent className="space-y-6">
           <div className="flex flex-wrap items-center gap-3">
             <div className="min-w-[220px]">
-              <Text className="text-sm font-semibold text-text-primary">Filtrer par pays</Text>
+              <Text className="text-sm font-semibold text-text-primary">Filter by country</Text>
               <RSelect
                 options={countryOptions}
                 value={countryFilter}
                 onChange={(value) => setCountryFilter(String(value))}
-                placeholder="Tous les pays"
+                placeholder="All countries"
                 size="md"
                 getOptionValueKey="value"
               />
             </div>
             <RButton variant="flat" size="sm" onClick={selectAllDepotsInCountry}>
-              Sélectionner tous les dépôts du pays
+              Select all depots in country
             </RButton>
             <RButton variant="flat" size="sm" onClick={selectAllSitesInCountry}>
-              Sélectionner tous les sites du pays
+              Select all sites in country
             </RButton>
             <RButton variant="flat" size="sm" onClick={selectAllVehiclesInCountry}>
-              Sélectionner tous les véhicules du pays
+              Select all vehicles in country
             </RButton>
           </div>
 
@@ -903,15 +903,15 @@ export default function OptimizationGlobal() {
               <Popover open={depotOpen} onOpenChange={setDepotOpen}>
                 <PopoverTrigger asChild>
                     <Button variant="outline" className="w-full justify-between">
-                    <span>{selectedDepotIds.length ? `${selectedDepotIds.length} sélectionné(s)` : "Sélectionner les dépôts"}</span>
+                    <span>{selectedDepotIds.length ? `${selectedDepotIds.length} selected` : "Select depots"}</span>
                     <Warehouse className="h-4 w-4 text-muted-foreground" aria-hidden />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[360px] p-0 max-h-[420px] overflow-hidden" align="start">
                   <Command>
-                    <CommandInput value={depotQuery} onValueChange={setDepotQuery} placeholder="Rechercher des dépôts..." />
+                    <CommandInput value={depotQuery} onValueChange={setDepotQuery} placeholder="Search depots..." />
                     <CommandList>
-                      <CommandEmpty>Aucun dépôt trouvé.</CommandEmpty>
+                      <CommandEmpty>No depots found.</CommandEmpty>
                       <CommandGroup>
                         {filteredDepots.map((d) => {
                             const selected = selectedDepotIds.includes(String(d.id));
@@ -930,7 +930,7 @@ export default function OptimizationGlobal() {
                                 <Check className={`h-4 w-4 ${selected ? "opacity-100" : "opacity-0"}`} aria-hidden />
                                 <div className="flex flex-col">
                                   <span className="font-medium">{d.name}</span>
-                                  <span className="text-xs text-muted-foreground">{d.address ?? "Aucune adresse"}</span>
+                                  <span className="text-xs text-muted-foreground">{d.address ?? "No address"}</span>
                                 </div>
                               </CommandItem>
                             );
@@ -943,7 +943,7 @@ export default function OptimizationGlobal() {
               </Popover>
               <div className="flex flex-wrap gap-2">
                 {selectedDepotIds.length === 0 ? (
-                  <Text className="text-xs text-text-secondary">Aucun dépôt sélectionné.</Text>
+                  <Text className="text-xs text-text-secondary">No depot selected.</Text>
                 ) : (
                   selectedDepotIds.map((id) => {
                     const depot = siteMap.get(id);
@@ -963,24 +963,24 @@ export default function OptimizationGlobal() {
             </div>
 
             <div className="space-y-2">
-              <Text className="text-sm font-semibold text-text-primary">Véhicules (avec dépôt)</Text>
+              <Text className="text-sm font-semibold text-text-primary">Vehicles (with depot)</Text>
               <Popover open={vehicleOpen} onOpenChange={setVehicleOpen}>
                 <PopoverTrigger asChild>
                     <Button variant="outline" className="w-full justify-between">
-                    <span>{selectedVehicleIds.length ? `${selectedVehicleIds.length} sélectionné(s)` : "Sélectionner les véhicules"}</span>
+                    <span>{selectedVehicleIds.length ? `${selectedVehicleIds.length} selected` : "Select vehicles"}</span>
                     <Truck className="h-4 w-4 text-muted-foreground" aria-hidden />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[360px] p-0 max-h-[420px] overflow-hidden" align="start">
                   <Command>
-                    <CommandInput value={vehicleQuery} onValueChange={setVehicleQuery} placeholder="Rechercher des véhicules..." />
+                    <CommandInput value={vehicleQuery} onValueChange={setVehicleQuery} placeholder="Search vehicles..." />
                     <CommandList>
-                      <CommandEmpty>Aucun véhicule trouvé.</CommandEmpty>
+                      <CommandEmpty>No vehicles found.</CommandEmpty>
                       <CommandGroup>
                         {filteredVehicles.map((v) => {
                             const depotLabel = v.depot_id
                               ? siteMap.get(String(v.depot_id))?.name ?? String(v.depot_id)
-                              : "Aucun dépôt";
+                              : "No depot";
                             const label = (v as any).label || v.id_vehicule;
                             const selected = selectedVehicleIds.includes(v.id_vehicule);
                             return (
@@ -1007,13 +1007,13 @@ export default function OptimizationGlobal() {
               </Popover>
               <div className="flex flex-wrap gap-2">
                 {selectedVehicleIds.length === 0 ? (
-                  <Text className="text-xs text-text-secondary">Aucun véhicule sélectionné.</Text>
+                  <Text className="text-xs text-text-secondary">No vehicle selected.</Text>
                 ) : (
                   selectedVehicleIds.map((id) => {
                     const veh = vehicles.find((v) => v.id_vehicule === id);
                     const depotLabel = veh?.depot_id
                       ? siteMap.get(String(veh.depot_id))?.name ?? String(veh.depot_id)
-                      : "Aucun dépôt";
+                      : "No depot";
                     return (
                       <Badge
                         key={id}
@@ -1031,19 +1031,19 @@ export default function OptimizationGlobal() {
           </div>
 
           <div className="space-y-2">
-            <Text className="text-sm font-semibold text-text-primary">Sites à livrer</Text>
+            <Text className="text-sm font-semibold text-text-primary">Delivery sites</Text>
             <Popover open={siteOpen} onOpenChange={setSiteOpen}>
               <PopoverTrigger asChild>
                 <Button variant="outline" className="w-full justify-between">
-                  <span>{selectedSiteIds.length ? `${selectedSiteIds.length} sélectionné(s)` : "Sélectionner les sites"}</span>
+                  <span>{selectedSiteIds.length ? `${selectedSiteIds.length} selected` : "Select sites"}</span>
                   <Warehouse className="h-4 w-4 text-muted-foreground" aria-hidden />
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-[420px] p-0 max-h-[520px] overflow-hidden" align="start">
                 <Command>
-                  <CommandInput value={siteQuery} onValueChange={setSiteQuery} placeholder="Rechercher des sites..." />
+                  <CommandInput value={siteQuery} onValueChange={setSiteQuery} placeholder="Search sites..." />
                   <CommandList>
-                    <CommandEmpty>Aucun site trouvé.</CommandEmpty>
+                    <CommandEmpty>No sites found.</CommandEmpty>
                     <CommandGroup>
                         {filteredClientSites.map((s) => {
                           const selected = selectedSiteIds.includes(String(s.id));
@@ -1056,7 +1056,7 @@ export default function OptimizationGlobal() {
                               <Check className={`h-4 w-4 ${selected ? "opacity-100" : "opacity-0"}`} aria-hidden />
                               <div className="flex flex-col">
                                 <span className="font-medium">{s.name}</span>
-                                <span className="text-xs text-muted-foreground">{s.address ?? "Aucune adresse"}</span>
+                                <span className="text-xs text-muted-foreground">{s.address ?? "No address"}</span>
                               </div>
                             </CommandItem>
                           );
@@ -1069,7 +1069,7 @@ export default function OptimizationGlobal() {
             </Popover>
             <div className="flex flex-wrap gap-2">
               {selectedSiteIds.length === 0 ? (
-                <Text className="text-xs text-text-secondary">Aucun site sélectionné.</Text>
+                <Text className="text-xs text-text-secondary">No site selected.</Text>
               ) : (
                 selectedSiteIds.slice(0, 16).map((id) => {
                   const site = siteMap.get(id);
@@ -1105,12 +1105,12 @@ export default function OptimizationGlobal() {
             <div>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <SlidersHorizontal className="h-5 w-5 text-blue-600" aria-hidden />
-                Paramètres d’optimisation
+                Optimization parameters
               </CardTitle>
-              <CardDescription>Choisissez le critère et le mode, puis ajustez la tolérance et le coût.</CardDescription>
+              <CardDescription>Choose the objective and mode, then adjust tolerance and cost.</CardDescription>
             </div>
             <Badge color={preflightIssues.length ? "warning" : "success"} variant="flat">
-              {preflightIssues.length ? `${preflightIssues.length} vérification(s) manquante(s)` : "Prêt à lancer"}
+              {preflightIssues.length ? `${preflightIssues.length} check(s) pending` : "Ready to run"}
             </Badge>
           </div>
         </CardHeader>
@@ -1118,7 +1118,7 @@ export default function OptimizationGlobal() {
         <CardContent className="space-y-6">
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2">
-              <Text className="text-xs font-semibold uppercase text-text-secondary">Critère d’optimisation</Text>
+              <Text className="text-xs font-semibold uppercase text-text-secondary">Optimization objective</Text>
               <RSelect
                 options={[
                   { value: "distance", label: "Distance min" },
@@ -1127,30 +1127,30 @@ export default function OptimizationGlobal() {
                 ]}
                 value={arc}
                 onChange={(value) => setArc(String(value) as Arc)}
-                placeholder="Choisir"
+                placeholder="Choose"
                 size="md"
                 getOptionValueKey="value"
               />
-              <Text className="text-xs text-text-secondary">Sélectionnez ce que le solveur doit minimiser en priorité.</Text>
+              <Text className="text-xs text-text-secondary">Select what the solver should minimize first.</Text>
             </div>
             <div className="space-y-2">
-              <Text className="text-xs font-semibold uppercase text-text-secondary">Mode du solveur</Text>
+              <Text className="text-xs font-semibold uppercase text-text-secondary">Solver mode</Text>
               <RSelect
                 options={[
-                  { value: "balanced", label: "Équilibré" },
-                  { value: "fast", label: "Rapide" },
+                  { value: "balanced", label: "Balanced" },
+                  { value: "fast", label: "Fast" },
                   { value: "optimal", label: "Optimal" },
                 ]}
                 value={solver}
                 onChange={(value) => setSolver(String(value) as Solver)}
-                placeholder="Choisir"
+                placeholder="Choose"
                 size="md"
                 getOptionValueKey="value"
               />
-              <Text className="text-xs text-text-secondary">Équilibré conserve un compromis qualité/vitesse adapté à un usage quotidien.</Text>
+              <Text className="text-xs text-text-secondary">Balanced keeps a quality/speed trade-off suited to daily use.</Text>
             </div>
             <div className="space-y-2">
-              <Text className="text-xs font-semibold uppercase text-text-secondary">Tolérance (minutes)</Text>
+              <Text className="text-xs font-semibold uppercase text-text-secondary">Tolerance (minutes)</Text>
               <RInput
                 type="number"
                 min={0}
@@ -1158,28 +1158,28 @@ export default function OptimizationGlobal() {
                 onChange={(event) => setSlackMinutes(Math.max(0, Number(event.target.value) || 0))}
                 suffix={<Text className="text-xs text-text-secondary">min</Text>}
               />
-              <Text className="text-xs text-text-secondary">Temps tampon par arrêt pour absorber les retards réels.</Text>
+              <Text className="text-xs text-text-secondary">Buffer time per stop to absorb real-world delays.</Text>
             </div>
             <div className="space-y-2">
-              <Text className="text-xs font-semibold uppercase text-text-secondary">Coût fixe par parcours</Text>
+              <Text className="text-xs font-semibold uppercase text-text-secondary">Fixed cost per route</Text>
               <RInput
                 type="number"
                 min={0}
                 value={fixedCostPerRoute}
                 onChange={(event) => setFixedCostPerRoute(Math.max(0, Number(event.target.value) || 0))}
-                suffix={<Text className="text-xs text-text-secondary">par parcours</Text>}
+                suffix={<Text className="text-xs text-text-secondary">per route</Text>}
               />
-              <Text className="text-xs text-text-secondary">Utiliser pour éviter la fragmentation excessive des parcours.</Text>
+              <Text className="text-xs text-text-secondary">Use it to avoid excessive route fragmentation.</Text>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-blue-50/70 p-4 shadow-inner dark:bg-blue-950/30">
             <div className="flex flex-col gap-1">
-              <Text className="text-sm font-semibold text-blue-900 dark:text-blue-100">Vérifications</Text>
+              <Text className="text-sm font-semibold text-blue-900 dark:text-blue-100">Checks</Text>
               <Text className="text-xs text-blue-900/80 dark:text-blue-100/80">
                 {preflightIssues.length
                   ? preflightIssues[0]
-                  : "Les chauffeurs sont déduits automatiquement à partir des véhicules ; des valeurs par défaut sont appliquées si elles sont manquantes."}
+                  : "Drivers are inferred automatically from vehicles; defaults are applied when missing."}
               </Text>
             </div>
               <RButton
@@ -1191,7 +1191,7 @@ export default function OptimizationGlobal() {
               >
                 <div className="flex items-center gap-2">
                   {running ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : <Rocket className="h-4 w-4" aria-hidden />}
-                  <span>{running ? `Optimisation en cours (${formatElapsed(elapsedSec)})` : "Lancer l’optimisation"}</span>
+                  <span>{running ? `Optimizing (${formatElapsed(elapsedSec)})` : "Run optimization"}</span>
                 </div>
               </RButton>
             </div>
@@ -1199,7 +1199,7 @@ export default function OptimizationGlobal() {
       </Card>
 
       {result && (
-        <ResultSummary result={result} title="Récapitulatif" description="Vue rapide des indicateurs clés." />
+        <ResultSummary result={result} title="Summary" description="Quick view of key metrics." />
       )}
 
       {result && (
@@ -1211,7 +1211,7 @@ export default function OptimizationGlobal() {
             drivers={drivers}
             saving={savingOptimization}
             onSave={handleSaveOptimization}
-              defaultName={`Optimisation globale - ${lastParams?.optimization_arc ?? arc}/${lastParams?.solver_mode ?? solver}`}
+              defaultName={`Global optimization - ${lastParams?.optimization_arc ?? arc}/${lastParams?.solver_mode ?? solver}`}
           />
 
           {Array.isArray(result.routes) && result.routes.length > 0 && (
@@ -1219,9 +1219,9 @@ export default function OptimizationGlobal() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                     <Truck className="h-5 w-5 text-blue-600" aria-hidden />
-                    Enregistrer un parcours réutilisable
+                    Save a reusable route
                   </CardTitle>
-                  <CardDescription>Convertir chaque parcours véhicule en un parcours réutilisable (dépôt + sites).</CardDescription>
+                  <CardDescription>Turn each vehicle route into a reusable route (depot + sites).</CardDescription>
               </CardHeader>
               <Separator />
               <CardContent className="space-y-3">
@@ -1236,9 +1236,9 @@ export default function OptimizationGlobal() {
                       className="flex flex-wrap items-center gap-3 rounded-xl border border-border/80 bg-muted/30 p-3"
                     >
                       <div className="flex flex-col gap-0.5">
-                        <div className="font-semibold">Véhicule {vehId || "-"}</div>
-                        <div className="text-sm text-muted-foreground">Dépôt : {depotLabel}</div>
-                        <div className="text-xs text-muted-foreground">{used ? "Utilisé dans la solution" : "Marqué comme non utilisé"}</div>
+                        <div className="font-semibold">Vehicle {vehId || "-"}</div>
+                        <div className="text-sm text-muted-foreground">Depot: {depotLabel}</div>
+                        <div className="text-xs text-muted-foreground">{used ? "Used in the solution" : "Marked as unused"}</div>
                       </div>
                       <div className="ml-auto flex items-center gap-2">
                         <RButton
@@ -1249,7 +1249,7 @@ export default function OptimizationGlobal() {
                           loader={<Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
                           onClick={() => handleSaveMilkRunFromRoute(route)}
                         >
-                          {savingRouteId === vehId ? "Enregistrement…" : "Enregistrer comme parcours"}
+                          {savingRouteId === vehId ? "Saving…" : "Save as route"}
                         </RButton>
                       </div>
                     </div>

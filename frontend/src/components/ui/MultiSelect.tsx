@@ -19,7 +19,7 @@ export default function MultiSelect({
   value,
   onChange,
   options,
-  placeholder = "Sélectionner…",
+  placeholder = "Select…",
   className,
 }: {
   value: string[];
@@ -36,7 +36,7 @@ export default function MultiSelect({
   };
 
   const label = value.length
-    ? `${value.length} sélectionné${value.length > 1 ? "s" : ""}`
+    ? `${value.length} selected`
     : placeholder;
 
   return (
@@ -54,9 +54,9 @@ export default function MultiSelect({
       </PopoverTrigger>
       <PopoverContent className="p-0 w-[320px]">
         <Command>
-          <CommandInput placeholder="Rechercher véhicule…" />
+          <CommandInput placeholder="Search…" />
           <CommandList>
-            <CommandEmpty>Aucun résultat.</CommandEmpty>
+            <CommandEmpty>No results.</CommandEmpty>
             <CommandGroup>
               {options.map((opt) => (
                 <CommandItem

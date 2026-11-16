@@ -1,3 +1,4 @@
+import { SITE_CATEGORIES } from "@/constants/domain";
 // @/components/fleet/SiteList.tsx
 import { memo, useEffect, useMemo, useState } from "react";
 import type { Site } from "@/types/site";
@@ -63,18 +64,7 @@ export type SiteUpdate = Partial<Omit<Site, "coordinates" | "operational_hours">
 };
 
 // ---------- Helpers ----------
-const DEFAULT_CATEGORIES = [
-  "ATELIER",
-  "COMPOSANT",
-  "DEPOT",
-  "FACONNIER",
-  "FOURNISSEUR",
-  "ATELIER ITALIEN",
-  "FOURNISSEUR EXW",
-  "HUB",
-  "FOURNISSEUR EXW ITALIEN",
-  "FOURNISSEUR ITALIEN",
-];
+const DEFAULT_CATEGORIES: string[] = [...SITE_CATEGORIES];
 
 function normalizeHours(oh?: Site["operational_hours"]) {
   return { start: oh?.start ?? "", end: oh?.end ?? "" };
@@ -122,7 +112,7 @@ function SiteList({ sites, onUpdate, categories, initialPageSize = 10 }: Props) 
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(initialPageSize);
 
-  const nf = useMemo(() => new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 6 }), []);
+  const nf = useMemo(() => new Intl.NumberFormat("en-US", { maximumFractionDigits: 6 }), []);
 
   // Filter FIRST (search across the full dataset)
   const filteredSites = useMemo(() => {
@@ -156,7 +146,7 @@ function SiteList({ sites, onUpdate, categories, initialPageSize = 10 }: Props) 
             <MapPin className="h-5 w-5 text-muted-foreground" aria-hidden />
             Sites
           </CardTitle>
-          <CardDescription>Aucun site disponible.</CardDescription>
+          <CardDescription>No sites available.</CardDescription>
         </CardHeader>
       </Card>
     );
@@ -172,7 +162,7 @@ function SiteList({ sites, onUpdate, categories, initialPageSize = 10 }: Props) 
           </CardTitle>
           {/* Page size selector */}
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground hidden sm:inline">Par page</span>
+            <span className="text-sm text-muted-foreground hidden sm:inline">Per page</span>
             <Select
               value={String(pageSize)}
               onValueChange={(v) => setPageSize(parseInt(v, 10))}
@@ -190,14 +180,14 @@ function SiteList({ sites, onUpdate, categories, initialPageSize = 10 }: Props) 
             </Select>
           </div>
         </div>
-        <CardDescription>Recherche globale + pagination locale.</CardDescription>
+        <CardDescription>Global search + local pagination.</CardDescription>
       </CardHeader>
 
       <CardContent className="p-0">
         {/* Search Input */}
         <div className="p-3">
           <Input
-            placeholder="Rechercher par nom, catégorie ou adresse…"
+            placeholder="Search by name, category or address…"
             aria-label="Recherche"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -205,8 +195,8 @@ function SiteList({ sites, onUpdate, categories, initialPageSize = 10 }: Props) 
           {/* Meta line */}
           <div className="mt-2 text-xs text-muted-foreground">
             {total
-              ? `Affichage ${startIdx + 1}–${endIdx} sur ${total} résultat${total > 1 ? "s" : ""}`
-              : "Aucun résultat"}
+              ? `Showing ${startIdx + 1}–${endIdx} of ${total} result${total > 1 ? "s" : ""}`
+              : "No results"}
           </div>
         </div>
 
@@ -214,14 +204,14 @@ function SiteList({ sites, onUpdate, categories, initialPageSize = 10 }: Props) 
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Nom</TableHead>
-                <TableHead>Catégorie</TableHead>
-                <TableHead>Adresse</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead>Address</TableHead>
                 <TableHead className="text-right">Latitude</TableHead>
                 <TableHead className="text-right">Longitude</TableHead>
-                <TableHead className="text-right">Chargement/Déchargement</TableHead>
-                <TableHead className="text-right">Ouverture</TableHead>
-                <TableHead className="text-right">Fermeture</TableHead>
+                <TableHead className="text-right">Loading/Unloading</TableHead>
+                <TableHead className="text-right">Opening</TableHead>
+                <TableHead className="text-right">Closing</TableHead>
                 <TableHead className="w-[1%] text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -254,7 +244,7 @@ function SiteList({ sites, onUpdate, categories, initialPageSize = 10 }: Props) 
                     >
                       <Button size="sm" variant="ghost" className="gap-2">
                         <Pencil className="h-4 w-4" />
-                        Modifier
+                        Edit
                       </Button>
                     </EditSiteDialog>
                   </TableCell>
@@ -264,8 +254,8 @@ function SiteList({ sites, onUpdate, categories, initialPageSize = 10 }: Props) 
                 <TableRow>
                   <TableCell colSpan={9} className="text-center text-muted-foreground py-4">
                     {query
-                      ? <>Aucun site ne correspond à « {query} ».</>
-                      : "Aucun site à afficher."}
+                      ? <>No site matches “{query}”.</>
+                      : "No sites to display."}
                   </TableCell>
                 </TableRow>
               )}
@@ -293,7 +283,7 @@ function SiteList({ sites, onUpdate, categories, initialPageSize = 10 }: Props) 
               onClick={() => setPage((p) => clamp(p - 1, 1, pageCount))}
               disabled={safePage === 1}
             >
-              Précédent
+              Previous
             </Button>
             <Button
               variant="outline"
@@ -301,7 +291,7 @@ function SiteList({ sites, onUpdate, categories, initialPageSize = 10 }: Props) 
               onClick={() => setPage((p) => clamp(p + 1, 1, pageCount))}
               disabled={safePage === pageCount}
             >
-              Suivant
+              Next
             </Button>
             <Button
               variant="outline"
@@ -411,13 +401,13 @@ function EditSiteDialog({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[640px]">
         <DialogHeader>
-          <DialogTitle>Modifier le site</DialogTitle>
+          <DialogTitle>Edit site</DialogTitle>
           <DialogDescription>ID : {site.id}</DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-4 py-2">
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">Nom</Label>
+            <Label htmlFor="name" className="text-right">Name</Label>
             <Input
               id="name"
               className="col-span-3"
@@ -427,13 +417,13 @@ function EditSiteDialog({
           </div>
 
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="category" className="text-right">Catégorie</Label>
+            <Label htmlFor="category" className="text-right">Category</Label>
             <Select
               value={form.category}
               onValueChange={(v) => setForm((f) => ({ ...f, category: v }))}
             >
               <SelectTrigger id="category" className="col-span-3">
-                <SelectValue placeholder="Sélectionner…" />
+                <SelectValue placeholder="Select…" />
               </SelectTrigger>
               <SelectContent>
                 {(categories?.length ? categories : DEFAULT_CATEGORIES).map((c) => (
@@ -444,7 +434,7 @@ function EditSiteDialog({
           </div>
 
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="address" className="text-right">Adresse</Label>
+            <Label htmlFor="address" className="text-right">Address</Label>
             <Input
               id="address"
               className="col-span-3"
@@ -483,13 +473,13 @@ function EditSiteDialog({
 
           {!latOK || !lonOK ? (
             <div className="col-span-4 -mt-2 text-xs text-red-600">
-              {(!latOK && "Latitude invalide (-90 à 90). ") || ""}
-              {(!lonOK && "Longitude invalide (-180 à 180). ") || ""}
+              {(!latOK && "Invalid latitude (-90 to 90). ") || ""}
+              {(!lonOK && "Invalid longitude (-180 to 180). ") || ""}
             </div>
           ) : null}
 
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="service" className="text-right">Chargement/Déchargement</Label>
+            <Label htmlFor="service" className="text-right">Loading/Unloading</Label>
             <Input
               id="service"
               type="time"
@@ -502,7 +492,7 @@ function EditSiteDialog({
           </div>
 
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="start" className="text-right">Ouverture</Label>
+            <Label htmlFor="start" className="text-right">Opening</Label>
             <Input
               id="start"
               type="time"
@@ -516,7 +506,7 @@ function EditSiteDialog({
           </div>
 
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="end" className="text-right">Fermeture</Label>
+            <Label htmlFor="end" className="text-right">Closing</Label>
             <Input
               id="end"
               type="time"
@@ -532,10 +522,10 @@ function EditSiteDialog({
 
         <DialogFooter className="gap-2">
           <DialogClose asChild>
-            <Button type="button" variant="outline">Annuler</Button>
+            <Button type="button" variant="outline">Cancel</Button>
           </DialogClose>
           <Button type="button" onClick={handleSave} disabled={saving || !latOK || !lonOK}>
-            {saving ? "Enregistrement…" : "Enregistrer"}
+            {saving ? "Saving…" : "Save"}
           </Button>
         </DialogFooter>
       </DialogContent>

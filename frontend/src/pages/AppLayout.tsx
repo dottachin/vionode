@@ -22,13 +22,13 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { path: "/", label: "Tableau de bord", icon: LayoutDashboard },
-  { path: "/fleet", label: "Parc véhicules", icon: Truck },
+  { path: "/fleet", label: "Fleet", icon: Truck },
   { path: "/sites", label: "Sites", icon: MapPin },
-  { path: "/orders", label: "Commandes", icon: Package },
+  { path: "/orders", label: "Orders", icon: Package },
 
   { path: "/milk-run", label: "Milk run", icon: RouteIcon },
-  { path: "/optimization-global", label: "Optimisation globale", icon: Globe },
-  { path: "/compare", label: "Comparer les résultats", icon: GitCompare }, // NEW
+  { path: "/optimization-global", label: "Global optimization", icon: Globe },
+  { path: "/compare", label: "Compare results", icon: GitCompare },
 ];
 
 export default function AppLayout() {
@@ -67,7 +67,7 @@ export default function AppLayout() {
 
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden" aria-label="Ouvrir le menu">
+              <Button variant="ghost" size="icon" className="md:hidden" aria-label="Open menu">
                 <Menu className="h-5 w-5" aria-hidden />
               </Button>
             </SheetTrigger>

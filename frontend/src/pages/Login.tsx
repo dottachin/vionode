@@ -31,8 +31,8 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!username.trim() || !password) {
-      toast.warning("Champs requis", {
-        description: "Renseignez le nom d’utilisateur et le mot de passe.",
+      toast.warning("Required fields", {
+        description: "Enter your username and password.",
       });
       return;
     }
@@ -43,9 +43,9 @@ export default function LoginPage() {
     try {
       const p = login(payload);
       toast.promise(p, {
-        loading: "Connexion…",
-        success: "Connecté",
-        error: "Échec de connexion",
+        loading: "Signing in…",
+        success: "Signed in",
+        error: "Login failed",
       });
 
       const tokenRes = await p;
@@ -60,8 +60,8 @@ export default function LoginPage() {
 
       navigate(redirectTo, { replace: true });
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Erreur inattendue";
-      toast.error("Impossible de se connecter", { description: message });
+      const message = err instanceof Error ? err.message : "Unexpected error";
+      toast.error("Could not sign in", { description: message });
     } finally {
       setLoading(false);
     }
@@ -72,15 +72,15 @@ export default function LoginPage() {
       <Card className="w-full shadow-sm">
         <CardContent className="space-y-6 p-6">
           <header className="text-center">
-            <h1 className="text-2xl font-semibold">Connexion</h1>
+            <h1 className="text-2xl font-semibold">Sign in</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Accédez à l’optimiseur de tournées
+              Access the route optimizer
             </p>
           </header>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username">Nom d’utilisateur</Label>
+              <Label htmlFor="username">Username</Label>
               <div className="relative">
                 <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -98,7 +98,7 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Mot de passe</Label>
+              <Label htmlFor="password">Password</Label>
               <div className="relative">
                 <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -116,7 +116,7 @@ export default function LoginPage() {
                   onClick={() => setShowPw((s) => !s)}
                   className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:underline"
                 >
-                  {showPw ? "Masquer" : "Afficher"}
+                  {showPw ? "Hide" : "Show"}
                 </button>
               </div>
             </div>
@@ -127,12 +127,12 @@ export default function LoginPage() {
               disabled={loading}
             >
               <LogIn className="h-4 w-4" aria-hidden />
-              {loading ? "Connexion…" : "Se connecter"}
+              {loading ? "Signing in…" : "Sign in"}
             </Button>
           </form>
 
           <p className="text-center text-xs text-muted-foreground">
-            Besoin d’un compte ? Contactez l’administrateur.
+            Need an account? Contact your administrator.
           </p>
         </CardContent>
       </Card>

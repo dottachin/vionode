@@ -58,24 +58,24 @@ export default function DriverForm({ onCreated }: Props) {
     const next: FormErrors = {};
 
     // name
-    if (!data.name.trim()) next.name = "Le nom est requis.";
-    else if (data.name.trim().length < 2) next.name = "Le nom doit contenir au moins 2 caractères.";
+    if (!data.name.trim()) next.name = "Name is required.";
+    else if (data.name.trim().length < 2) next.name = "Name must be at least 2 characters.";
 
     // driving hours
     const driving = num(data.max_daily_driving_hours);
-    if (Number.isNaN(driving)) next.max_daily_driving_hours = "Les heures de conduite sont requises.";
-    else if (driving <= 0) next.max_daily_driving_hours = "Doit être > 0.";
-    else if (driving > 24) next.max_daily_driving_hours = "Ne doit pas dépasser 24.";
+    if (Number.isNaN(driving)) next.max_daily_driving_hours = "Driving hours are required.";
+    else if (driving <= 0) next.max_daily_driving_hours = "Must be > 0.";
+    else if (driving > 24) next.max_daily_driving_hours = "Must not exceed 24.";
 
     // service hours
     const service = num(data.max_daily_service_hours);
-    if (Number.isNaN(service)) next.max_daily_service_hours = "Les heures de service sont requises.";
-    else if (service <= 0) next.max_daily_service_hours = "Doit être > 0.";
-    else if (service > 24) next.max_daily_service_hours = "Ne doit pas dépasser 24.";
+    if (Number.isNaN(service)) next.max_daily_service_hours = "Service hours are required.";
+    else if (service <= 0) next.max_daily_service_hours = "Must be > 0.";
+    else if (service > 24) next.max_daily_service_hours = "Must not exceed 24.";
 
     // cross-field (service >= driving)
     if (!Number.isNaN(driving) && !Number.isNaN(service) && driving > service) {
-      next._cross = "Les heures de service doivent être ≥ aux heures de conduite.";
+      next._cross = "Service hours must be ≥ driving hours.";
     }
 
     return next;
@@ -109,7 +109,7 @@ export default function DriverForm({ onCreated }: Props) {
     } catch {
       setErrors(prev => ({
         ...prev,
-        _form: "La création a échoué. Vérifiez les champs ou réessayez.",
+        _form: "Creation failed. Check the fields and try again.",
       }));
     } finally {
       setSubmitting(false);
@@ -124,14 +124,14 @@ export default function DriverForm({ onCreated }: Props) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Plus className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
-          Ajouter un Chauffeur
+          Add a driver
         </CardTitle>
       </CardHeader>
       <CardContent>
         <form className="space-y-4" onSubmit={handleSubmit} noValidate>
           <div>
             <Label className="mb-2 block" htmlFor={nameId}>
-              Nom <span className="text-red-500">*</span>
+              Name <span className="text-red-500">*</span>
             </Label>
             <Input
               id={nameId}
@@ -150,7 +150,7 @@ export default function DriverForm({ onCreated }: Props) {
 
           <div>
             <Label className="mb-2 block" htmlFor={driveId}>
-              Heures de conduite max / jour <span className="text-red-500">*</span>
+              Max driving hours / day <span className="text-red-500">*</span>
             </Label>
             <Input
               id={driveId}
@@ -176,7 +176,7 @@ export default function DriverForm({ onCreated }: Props) {
 
           <div>
             <Label className="mb-2 block" htmlFor={serviceId}>
-              Heures de service max / jour <span className="text-red-500">*</span>
+              Max service hours / day <span className="text-red-500">*</span>
             </Label>
             <Input
               id={serviceId}
@@ -213,7 +213,7 @@ export default function DriverForm({ onCreated }: Props) {
           )}
 
           <Button type="submit" className="w-full" disabled={!canSubmit} aria-busy={submitting}>
-            {submitting ? "Création…" : "Créer"}
+            {submitting ? "Creating…" : "Create"}
           </Button>
         </form>
       </CardContent>

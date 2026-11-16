@@ -40,7 +40,7 @@ const DriverList = ({ drivers, vehicles, onUpdate, onDelete }: Props) => {
     return m;
   }, [vehicles]);
 
-  const nf = useMemo(() => new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 }), []);
+  const nf = useMemo(() => new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }), []);
 
   if (!drivers?.length) {
     return (
@@ -48,9 +48,9 @@ const DriverList = ({ drivers, vehicles, onUpdate, onDelete }: Props) => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <UserSquare2 className="h-5 w-5 text-muted-foreground" aria-hidden />
-            Chauffeurs
+            Drivers
           </CardTitle>
-          <CardDescription>Aucun chauffeur disponible.</CardDescription>
+          <CardDescription>No drivers available.</CardDescription>
         </CardHeader>
       </Card>
     );
@@ -61,19 +61,19 @@ const DriverList = ({ drivers, vehicles, onUpdate, onDelete }: Props) => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <UserSquare2 className="h-5 w-5 text-muted-foreground" aria-hidden />
-          Chauffeurs
+          Drivers
         </CardTitle>
-        <CardDescription>Liste compacte avec véhicules affectés.</CardDescription>
+        <CardDescription>Compact list with assigned vehicles.</CardDescription>
       </CardHeader>
       <CardContent className="p-0">
         <div className="w-full overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Nom</TableHead>
-                <TableHead className="text-right">Conduite/jour (h)</TableHead>
-                <TableHead className="text-right">Service/jour (h)</TableHead>
-                <TableHead>Véhicules affectés</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead className="text-right">Driving/day (h)</TableHead>
+                <TableHead className="text-right">Service/day (h)</TableHead>
+                <TableHead>Assigned vehicles</TableHead>
                 {(onUpdate || onDelete) ? <TableHead className="w-[1%] text-right">Actions</TableHead> : null}
               </TableRow>
             </TableHeader>
@@ -116,22 +116,22 @@ const DriverList = ({ drivers, vehicles, onUpdate, onDelete }: Props) => {
                             >
                               <Button size="sm" variant="ghost" className="gap-2">
                                 <Pencil className="h-4 w-4" />
-                                Modifier
+                                Edit
                               </Button>
                             </EditDriverDialog>
                           ) : null}
 
                           {onDelete ? (
                             <ConfirmDelete
-                              title="Supprimer le chauffeur"
-                              description={`Voulez-vous vraiment supprimer le chauffeur ${d.name} (${key}) ? Cette action est irréversible.`}
+                              title="Delete driver"
+                              description={`Are you sure you want to delete driver ${d.name} (${key})? This action cannot be undone.`}
                               onConfirm={async () => {
                                 await onDelete(key);
                               }}
                             >
                               <Button size="sm" variant="ghost" className="gap-2 text-red-600 hover:text-red-700">
                                 <Trash2 className="h-4 w-4" />
-                                Supprimer
+                                Delete
                               </Button>
                             </ConfirmDelete>
                           ) : null}
@@ -170,7 +170,7 @@ function ConfirmDelete({
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={busy}>Annuler</AlertDialogCancel>
+          <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
           <AlertDialogAction
             disabled={busy}
             onClick={async (e) => {
@@ -183,7 +183,7 @@ function ConfirmDelete({
               }
             }}
           >
-            {busy ? "Suppression…" : "Supprimer"}
+            {busy ? "Deleting…" : "Delete"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -258,24 +258,24 @@ function EditDriverDialog({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[520px]">
         <DialogHeader>
-          <DialogTitle>Modifier le chauffeur</DialogTitle>
-          <DialogDescription>Nom : {`${String(driver.name)}`}</DialogDescription>
+          <DialogTitle>Edit driver</DialogTitle>
+          <DialogDescription>Name: {`${String(driver.name)}`}</DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-4 py-2">
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="d-name" className="text-right">Nom</Label>
+            <Label htmlFor="d-name" className="text-right">Name</Label>
             <Input
               id="d-name"
               className="col-span-3"
               value={form.name ?? ""}
               onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-              placeholder="ex: Ahmed El F."
+              placeholder="e.g. Ahmed B."
             />
           </div>
 
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="d-driving" className="text-right">Conduite/jour (h)</Label>
+            <Label htmlFor="d-driving" className="text-right">Driving/day (h)</Label>
             <Input
               id="d-driving"
               inputMode="decimal"
@@ -287,7 +287,7 @@ function EditDriverDialog({
           </div>
 
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="d-service" className="text-right">Service/jour (h)</Label>
+            <Label htmlFor="d-service" className="text-right">Service/day (h)</Label>
             <Input
               id="d-service"
               inputMode="decimal"
@@ -301,10 +301,10 @@ function EditDriverDialog({
 
         <DialogFooter className="gap-2">
           <DialogClose asChild>
-            <Button type="button" variant="outline">Annuler</Button>
+            <Button type="button" variant="outline">Cancel</Button>
           </DialogClose>
           <Button type="button" onClick={handleSave} disabled={saving}>
-            {saving ? "Enregistrement…" : "Enregistrer"}
+            {saving ? "Saving…" : "Save"}
           </Button>
         </DialogFooter>
       </DialogContent>

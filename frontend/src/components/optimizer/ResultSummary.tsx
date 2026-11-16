@@ -42,7 +42,7 @@ function summarize(result?: OptimizerResult | null) {
   return { distanceKm, durationH, co2Kg, vehiclesUsed };
 }
 
-export default function ResultSummary({ result, title = "Récapitulatif", description }: Props) {
+export default function ResultSummary({ result, title = "Summary", description }: Props) {
   const summary = summarize(result);
   if (!summary) return null;
 
@@ -54,20 +54,20 @@ export default function ResultSummary({ result, title = "Récapitulatif", descri
           {description && <CardDescription>{description}</CardDescription>}
         </div>
         <Badge color="info" variant="flat" className="text-xs">
-          Indicateurs en direct
+          Live metrics
         </Badge>
       </CardHeader>
       <Separator />
       <CardContent>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-xl border border-blue-100/70 bg-blue-50/60 p-3 dark:border-blue-900/40 dark:bg-blue-950/40">
-            <Text className="text-xs uppercase text-text-secondary">Distance totale</Text>
+            <Text className="text-xs uppercase text-text-secondary">Total distance</Text>
             <div className="text-lg font-semibold">
               {summary.distanceKm ? `${summary.distanceKm.toFixed(1)} km` : "-"}
             </div>
           </div>
           <div className="rounded-xl border border-blue-100/70 bg-blue-50/60 p-3 dark:border-blue-900/40 dark:bg-blue-950/40">
-            <Text className="text-xs uppercase text-text-secondary">Durée totale</Text>
+            <Text className="text-xs uppercase text-text-secondary">Total duration</Text>
             <div className="text-lg font-semibold">
               {summary.durationH ? `${summary.durationH.toFixed(1)} h` : "-"}
             </div>
@@ -79,7 +79,7 @@ export default function ResultSummary({ result, title = "Récapitulatif", descri
             </div>
           </div>
           <div className="rounded-xl border border-blue-100/70 bg-blue-50/60 p-3 dark:border-blue-900/40 dark:bg-blue-950/40">
-            <Text className="text-xs uppercase text-text-secondary">Véhicules utilisés</Text>
+            <Text className="text-xs uppercase text-text-secondary">Vehicles used</Text>
             <div className="text-lg font-semibold">
               {summary.vehiclesUsed ?? "-"}
             </div>

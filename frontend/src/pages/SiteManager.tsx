@@ -43,9 +43,9 @@ export default function SiteManager() {
     } catch (e) {
       if (!signal?.aborted) {
         console.error("Failed to fetch sites", e);
-        const msg = "Impossible de charger les sites. Veuillez réessayer.";
+        const msg = "Could not load sites. Please try again.";
         setError(msg);
-        toast.error("Erreur de chargement", { description: msg });
+        toast.error("Loading error", { description: msg });
       }
     } finally {
       if (!signal?.aborted) setLoading(false);
@@ -59,13 +59,13 @@ useEffect(() => {
 
   const toastId = "load-sites";
 
-  toast.loading("Chargement des sites…", { id: toastId });
+  toast.loading("Loading sites…", { id: toastId });
 
   p.then(() => {
-    toast.success("Sites chargés", { id: toastId });
+    toast.success("Sites loaded", { id: toastId });
   }).catch((err) => {
     if (err.name !== "AbortError") {
-      toast.error("Erreur lors du chargement", { id: toastId });
+      toast.error("Error while loading", { id: toastId });
     }
   });
 
@@ -102,12 +102,12 @@ useEffect(() => {
 
     try {
       await updateSite(id, apiUpdates);
-      toast.success("Site mis à jour");
+      toast.success("Site updated");
     } catch (e) {
       console.error("Update site failed", e);
-      setError("Échec de la mise à jour du site. Données restaurées.");
-      toast.error("Échec de la mise à jour", {
-        description: "Les données locales ont été restaurées.",
+      setError("Site update failed. Data restored.");
+      toast.error("Update failed", {
+        description: "Local data has been restored.",
       });
       // rollback by refetching
       await loadSites();
@@ -123,9 +123,9 @@ useEffect(() => {
         <div className="flex items-center gap-2">
           <MapPin className="h-6 w-6 text-muted-foreground" aria-hidden />
           <div>
-            <h1 className="text-3xl font-bold">Gestion des Sites</h1>
+            <h1 className="text-3xl font-bold">Site management</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Créez, consultez et mettez à jour les sites opérationnels.
+              Create, view and update operational sites.
             </p>
           </div>
         </div>
@@ -135,20 +135,20 @@ useEffect(() => {
           <DialogTrigger asChild>
             <Button type="button" className="inline-flex items-center gap-2">
               <Plus className="h-4 w-4" aria-hidden />
-              Nouveau site
+              New site
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[640px]">
             <DialogHeader>
-              <DialogTitle>Ajouter un site</DialogTitle>
-              <DialogDescription>Renseignez les informations ci-dessous.</DialogDescription>
+              <DialogTitle>Add a site</DialogTitle>
+              <DialogDescription>Fill in the details below.</DialogDescription>
             </DialogHeader>
             <div className="pt-2">
               <SiteForm
                 onCreated={(site) => {
                   // Optimistically add new site to the top
                   setSites((prev) => [site, ...prev]);
-                  toast.success("Site créé");
+                  toast.success("Site created");
                   setCreateOpen(false);
                 }}
               />
@@ -160,12 +160,12 @@ useEffect(() => {
       {/* TABLE FIRST */}
       <section aria-labelledby="sites-heading" className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 id="sites-heading" className="text-2xl font-semibold">Liste des Sites</h2>
+          <h2 id="sites-heading" className="text-2xl font-semibold">Sites</h2>
         </div>
 
         {error && (
           <Alert variant="destructive">
-            <AlertTitle>Erreur</AlertTitle>
+            <AlertTitle>Error</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
@@ -176,20 +176,19 @@ useEffect(() => {
           <Card>
             <CardContent className="p-6">
               <p className="text-sm text-muted-foreground">
-                Aucun site enregistré. Cliquez sur <b>Nouveau site</b> pour en ajouter.
+                No sites yet. Click <b>New site</b> to add one.
               </p>
             </CardContent>
           </Card>
         ) : (
           <SiteList
             sites={sites} // ← pass FULL list; SiteList handles search + pagination internally
-            categories={["Dépôt", "Client", "Station"]}
             onUpdate={handleUpdate}
             initialPageSize={10}
           />
         )}
 
-        {saving && <p className="text-xs text-muted-foreground">Enregistrement des modifications…</p>}
+        {saving && <p className="text-xs text-muted-foreground">Saving changes…</p>}
       </section>
     </div>
   );

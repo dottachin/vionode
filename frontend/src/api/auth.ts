@@ -68,7 +68,7 @@ export async function login(body: LoginRequest): Promise<TokenResponse> {
   });
   if (!res.ok) {
     const msg = await res.text();
-    throw new Error(msg || "Échec de connexion");
+    throw new Error(msg || "Login failed");
   }
   const data = (await res.json()) as TokenResponse;
 
@@ -95,7 +95,7 @@ export async function fetchMe(): Promise<UserPublic> {
   });
   if (!res.ok) {
     const msg = await res.text();
-    throw new Error(msg || "Impossible de récupérer l’utilisateur");
+    throw new Error(msg || "Could not fetch the current user");
   }
   return res.json() as Promise<UserPublic>;
 }

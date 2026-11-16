@@ -56,7 +56,7 @@ type Props = {
   vehicles?: Vehicle[];
   drivers?: Driver[];
   mapkey?: string;
-  /** Disable editing of the “Nom de l’optimisation” input */
+  /** Disable editing of the “Optimization name” input */
   nameDisabled?: boolean;
 };
 
@@ -64,15 +64,15 @@ type Props = {
 
 const useFormatters = () => {
   const nf0 = useMemo(
-    () => new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }),
+    () => new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }),
     []
   );
   const nf1 = useMemo(
-    () => new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 1 }),
+    () => new Intl.NumberFormat("en-US", { maximumFractionDigits: 1 }),
     []
   );
   const nf2 = useMemo(
-    () => new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 }),
+    () => new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }),
     []
   );
 
@@ -722,17 +722,17 @@ function OptimizerResults({
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Brain className="h-5 w-5 text-muted-foreground" aria-hidden />
-                Résumé de l’optimisation
+                Optimization summary
                 {statusIsNoSolution && (
                   <Badge variant="destructive" className="ml-2">
-                    Aucune solution
+                    No solution
                   </Badge>
                 )}
               </CardTitle>
               <CardDescription>
                 {statusIsNoSolution
-                  ? "Aucune tournée réalisable avec les contraintes actuelles."
-                  : "Détails globaux et affectations (routes avec segments uniquement)."}
+                  ? "No feasible route with the current constraints."
+                  : "Global details and assignments (routes with segments only)."}
               </CardDescription>
             </div>
 
@@ -740,11 +740,11 @@ function OptimizerResults({
             {!nameDisabled && (
               <div className="flex items-end gap-2">
                 <div className="w-64">
-                  <label className="mb-1 block text-sm">Nom de l’optimisation</label>
+                  <label className="mb-1 block text-sm">Optimization name</label>
                   <Input
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder={defaultName ?? "Nom"}
+                    placeholder={defaultName ?? "Name"}
                   />
                 </div>
                 <Button
@@ -753,7 +753,7 @@ function OptimizerResults({
                   className="gap-2"
                 >
                   <Save className="h-4 w-4" />
-                  {saving ? "Sauvegarde…" : "Sauvegarder"}
+                  {saving ? "Saving…" : "Save"}
                 </Button>
               </div>
             )}
@@ -768,14 +768,14 @@ function OptimizerResults({
                 <AlertTriangle className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div className="space-y-2">
                   <p className="text-sm">
-                    Aucun itinéraire n’a pu être construit. Voici quelques pistes à vérifier :
+                    No route could be built. Some things to check:
                   </p>
                   <ul className="list-disc pl-5 text-sm space-y-1">
-                    <li>Capacités des véhicules (surface/poids) insuffisantes.</li>
-                    <li>Contraintes de distance maximale ou d’autonomie trop strictes.</li>
-                    <li>Fenêtres horaires incompatibles entre sites et véhicules.</li>
-                    <li>Pas de véhicule assigné aux sites (dans le manuel) ou aucun véhicule sélectionné (dans l’optimisation).</li>
-                    <li>Sites inaccessibles ou matrice temps/distance non calculable.</li>
+                    <li>Insufficient vehicle capacity (surface/weight).</li>
+                    <li>Max distance or range constraints are too strict.</li>
+                    <li>Incompatible time windows between sites and vehicles.</li>
+                    <li>No vehicle assigned to sites (manual mode) or no vehicle selected (optimization).</li>
+                    <li>Unreachable sites or time/distance matrix could not be computed.</li>
                   </ul>
 
                   {/* Show minimal metrics/diagnostics if present */}
@@ -790,7 +790,7 @@ function OptimizerResults({
                     )}
                     {(result.unassigned_orders?.length ?? 0) > 0 && (
                       <div className="flex items-center gap-2 sm:col-span-2 lg:col-span-1">
-                        <Badge variant="destructive">Non assignees</Badge>
+                        <Badge variant="destructive">Unassigned</Badge>
                         <span className="text-sm">
                           {result.unassigned_orders!.join(", ")}
                         </span>
@@ -806,14 +806,14 @@ function OptimizerResults({
                 <div className="flex items-center gap-2">
                   <RouteIcon className="h-4 w-4 text-muted-foreground" aria-hidden />
                   <span className="text-sm">
-                    Distance totale : <b>{formatKmFromKm(summaryDistanceKm)}</b>
+                    Total distance: <b>{formatKmFromKm(summaryDistanceKm)}</b>
                   </span>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <Timer className="h-4 w-4 text-muted-foreground" aria-hidden />
                   <span className="text-sm">
-                    Durée totale :{" "}
+                    Total duration:{" "}
                     <b>{hhmmFromMinutes(summaryDurationHours * 60)}</b>
                   </span>
                 </div>
@@ -821,7 +821,7 @@ function OptimizerResults({
                 <div className="flex items-center gap-2">
                   <Leaf className="h-4 w-4 text-muted-foreground" aria-hidden />
                   <span className="text-sm">
-                    Émissions totales :{" "}
+                    Total emissions:{" "}
                     <b>{formatKgFromKg(summaryEmissionsKg)}</b>
                   </span>
                 </div>
@@ -830,7 +830,7 @@ function OptimizerResults({
                   <div className="flex items-center gap-2">
                     <Truck className="h-4 w-4 text-muted-foreground" aria-hidden />
                     <span className="text-sm">
-                      Véhicules utilisés : <b>{vehiclesUsedMetric}</b>
+                      Vehicles used: <b>{vehiclesUsedMetric}</b>
                     </span>
                   </div>
                 )}
@@ -849,7 +849,7 @@ function OptimizerResults({
                   <div className="flex items-center gap-2 sm:col-span-2 lg:col-span-1">
                     <Weight className="h-4 w-4 text-muted-foreground" aria-hidden />
                     <span className="text-sm">
-                      Utilisation poids :{" "}
+                      Weight utilization:{" "}
                       <b>{formatPct(metrics.weight_utilization)}</b>
                     </span>
                   </div>
@@ -869,7 +869,7 @@ function OptimizerResults({
                 <div className="flex items-start gap-3 rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2">
                   <AlertTriangle className="h-4 w-4 text-destructive mt-1" />
                   <div className="space-y-1">
-                    <div className="text-sm font-medium text-destructive">Commandes non assignees</div>
+                    <div className="text-sm font-medium text-destructive">Unassigned orders</div>
                     <div className="text-sm break-all">{result.unassigned_orders!.join(", ")}</div>
                   </div>
                 </div>
@@ -898,12 +898,12 @@ function OptimizerResults({
                 <CardHeader>
                   <CardTitle className="flex flex-wrap items-center gap-2 text-base">
                     <Truck className="h-4 w-4 text-muted-foreground" aria-hidden />
-                    Véhicule <b>{vehicleLabel || details.vehicle_id}</b>
-                    <Badge variant="outline">Dépôt : {depotLabel}</Badge>
+                    Vehicle <b>{vehicleLabel || details.vehicle_id}</b>
+                    <Badge variant="outline">Depot: {depotLabel}</Badge>
                     {used ? (
-                      <Badge variant="secondary">Utilisé</Badge>
+                      <Badge variant="secondary">Used</Badge>
                     ) : (
-                      <Badge variant="destructive">Non utilisé</Badge>
+                      <Badge variant="destructive">Unused</Badge>
                     )}
                     <span className="mx-2 hidden sm:inline text-muted-foreground">/</span>
                     <User className="h-4 w-4 text-muted-foreground" aria-hidden />
@@ -926,7 +926,7 @@ function OptimizerResults({
                         Distance : <b>{nf1.format(details.total_distance_km)} km</b>
                       </span>
                       <span>
-                        Durée :{" "}
+                        Duration:{" "}
                         <b>{hhmmFromMinutes(details.total_duration_hours * 60)}</b>
                       </span>
                       <span>
@@ -955,7 +955,7 @@ function OptimizerResults({
                           <Weight className="h-4 w-4 text-muted-foreground" />
                           <div className="w-full">
                             <div className="flex items-center justify-between text-xs text-muted-foreground">
-                              <span>Poids</span>
+                              <span>Weight</span>
                               <span>
                                 {nf1.format(scaleWeight(assign?.weight_used ?? details.weight_used))} / {nf1.format(scaleWeight(assign?.weight_capacity ?? details.weight_capacity))} kg
                               </span>
@@ -981,8 +981,8 @@ function OptimizerResults({
             {!details.segments.length && (
               <div className="px-6 pb-4 text-sm text-muted-foreground">
                 {used
-                  ? "Aucun arrêt renvoyé pour ce véhicule."
-                  : "Route marquée comme non utilisée par le solveur."}
+                  ? "No stops returned for this vehicle."
+                  : "Route marked as unused by the solver."}
               </div>
             )}
 
@@ -992,18 +992,18 @@ function OptimizerResults({
                       <Table>
                         <TableHeader className="sticky top-0 bg-background z-10">
                           <TableRow>
-                            <TableHead>De</TableHead>
-                            <TableHead>À</TableHead>
+                            <TableHead>From</TableHead>
+                            <TableHead>To</TableHead>
                             <TableHead className="text-right">Distance</TableHead>
                             <TableHead className="text-right">CO₂</TableHead>
-                            <TableHead className="text-right">Trajet</TableHead>
-                            <TableHead className="text-right">Chargement/Déchargement</TableHead>
-                            <TableHead className="text-right">Départ</TableHead>
-                            <TableHead className="text-right">Arrivée</TableHead>
+                            <TableHead className="text-right">Travel</TableHead>
+                            <TableHead className="text-right">Loading/Unloading</TableHead>
+                            <TableHead className="text-right">Departure</TableHead>
+                            <TableHead className="text-right">Arrival</TableHead>
                             <TableHead className="text-right">Δ Surface</TableHead>
-                            <TableHead className="text-right">Δ Poids</TableHead>
-                            <TableHead className="text-right">Surface (À)</TableHead>
-                            <TableHead className="text-right">Poids (À)</TableHead>
+                            <TableHead className="text-right">Δ Weight</TableHead>
+                            <TableHead className="text-right">Surface (to)</TableHead>
+                            <TableHead className="text-right">Weight (to)</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>

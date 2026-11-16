@@ -5,16 +5,16 @@ export default function Dashboard() {
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-3xl">
-          👋 Bienvenue sur Vionode
+          👋 Welcome to Vionode
         </CardTitle>
         <CardDescription>
-          Optimisez vos tournées et vos ressources. Choisissez un module dans le menu pour commencer.
+          Optimize your routes and resources. Pick a module from the menu to get started.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <p className="text-muted-foreground">
-          Utilisez la navigation pour gérer votre flotte, créer des commandes, configurer les sites et lancer
-          des optimisations. Vous pouvez aussi tester les tournées « Milk run » pour des simulations prédéfinies.
+          Use the navigation to manage your fleet, create orders, configure sites and run
+          optimizations. You can also try “milk run” routes for predefined simulations.
         </p>
       </CardContent>
     </Card>

@@ -1,3 +1,4 @@
+import { VEHICLE_TYPES, FUELS, type VehicleType } from "@/constants/domain";
 ﻿/* eslint-disable @typescript-eslint/no-explicit-any */
 import { memo, useMemo, useState } from "react";
 import type { Vehicle, Driver } from "@/types/vehicle";
@@ -26,9 +27,6 @@ import {
   Select, SelectTrigger, SelectValue, SelectContent, SelectItem,
 } from "@/components/ui/select";
 
-// Vehicle types as a constrained enum
-const VEHICLE_TYPES = ["tracteur", "semi remorque", "VUL", "porteur"] as const;
-type VehicleType = typeof VEHICLE_TYPES[number];
 
 type Props = {
   vehicles: Vehicle[];
@@ -40,17 +38,7 @@ type Props = {
 
 type VehicleFormState = Omit<Partial<Vehicle>, 'equipements'> & { equipements?: string | string[] };
 
-const CARBURANTS = [
-  "Bioéthanol - ED95",
-  "Essence - Supercarburant sans plomb (95, E10, 98)",
-  "Gazole - B30",
-  "Gazole non routier",
-  "Gazole routier - B100",
-  "Gazole routier - B7",
-  "HVO - Huile végétale hydrotraitée (sans changement d'affectation des sols)",
-  "Kérosène - Jet A1 ou A (litre)",
-  "Électricité (2022 - mix moyen)",
-] as const;
+const CARBURANTS = FUELS;
 
 const VehicleList = ({ vehicles, drivers, depots, onUpdate, onDelete }: Props) => {
   const driverMap = useMemo(() => {
@@ -65,7 +53,7 @@ const VehicleList = ({ vehicles, drivers, depots, onUpdate, onDelete }: Props) =
     return m;
   }, [depots]);
 
-  const nf = useMemo(() => new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 }), []);
+  const nf = useMemo(() => new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }), []);
 
   if (!vehicles?.length) {
     return (
@@ -73,9 +61,9 @@ const VehicleList = ({ vehicles, drivers, depots, onUpdate, onDelete }: Props) =
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Truck className="h-5 w-5 text-muted-foreground" aria-hidden />
-            Véhicules
+            Vehicles
           </CardTitle>
-          <CardDescription>Aucun véhicule disponible.</CardDescription>
+          <CardDescription>No vehicles available.</CardDescription>
         </CardHeader>
       </Card>
     );
@@ -86,24 +74,24 @@ const VehicleList = ({ vehicles, drivers, depots, onUpdate, onDelete }: Props) =
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Truck className="h-5 w-5 text-muted-foreground" aria-hidden />
-          Véhicules
+          Vehicles
         </CardTitle>
-        <CardDescription>Liste compacte avec modification.</CardDescription>
+        <CardDescription>Compact list with editing.</CardDescription>
       </CardHeader>
       <CardContent className="p-0">
         <div className="w-full overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Véhicule</TableHead>
-                <TableHead>Dépôt</TableHead>
+                <TableHead>Vehicle</TableHead>
+                <TableHead>Depot</TableHead>
                 <TableHead>Type</TableHead>
-                <TableHead className="text-right">Poids (kg)</TableHead>
+                <TableHead className="text-right">Weight (kg)</TableHead>
                 <TableHead className="text-right">Surface (ml)</TableHead>
                 <TableHead className="text-right">Distance max (km)</TableHead>
                 <TableHead className="text-right">Conso (L/km)</TableHead>
-                <TableHead>Carburant</TableHead>
-                <TableHead>Chauffeurs</TableHead>
+                <TableHead>Fuel</TableHead>
+                <TableHead>Drivers</TableHead>
                 <TableHead className="w-[1%] text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -163,21 +151,21 @@ const VehicleList = ({ vehicles, drivers, depots, onUpdate, onDelete }: Props) =
                         >
                           <Button size="sm" variant="ghost" className="gap-2">
                             <Pencil className="h-4 w-4" />
-                            Modifier
+                            Edit
                           </Button>
                         </EditVehicleDialog>
 
                         {onDelete ? (
                           <ConfirmDelete
-                            title="Supprimer le véhicule"
-                            description={`Voulez-vous vraiment supprimer le véhicule ${idStr} ? Cette action est irréversible.`}
+                            title="Delete vehicle"
+                            description={`Are you sure you want to delete vehicle ${idStr}? This action cannot be undone.`}
                             onConfirm={async () => {
                               await onDelete(idStr);
                             }}
                           >
                             <Button size="sm" variant="ghost" className="gap-2 text-red-600 hover:text-red-700">
                               <Trash2 className="h-4 w-4" />
-                              Supprimer
+                              Delete
                             </Button>
                           </ConfirmDelete>
                         ) : null}
@@ -215,7 +203,7 @@ function ConfirmDelete({
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={busy}>Annuler</AlertDialogCancel>
+          <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
           <AlertDialogAction
             disabled={busy}
             onClick={async (e) => {
@@ -228,7 +216,7 @@ function ConfirmDelete({
               }
             }}
           >
-            {busy ? "Suppression…" : "Supprimer"}
+            {busy ? "Deleting…" : "Delete"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -272,7 +260,7 @@ function EditVehicleDialog({
     ) as any,
   }) as VehicleFormState);
 
-  const nf = useMemo(() => new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 }), []);
+  const nf = useMemo(() => new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }), []);
 
   const setNum = (key: keyof Vehicle | "conso", raw: string) => {
     const val = raw.trim() === "" ? undefined : Number(raw.replace(",", "."));
@@ -377,31 +365,31 @@ function EditVehicleDialog({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[560px]">
             <DialogHeader>
-          <DialogTitle>Modifier le véhicule</DialogTitle>
+          <DialogTitle>Edit vehicle</DialogTitle>
           <DialogDescription>ID : {`${String((vehicle as any).id_vehicule ?? "")}`}</DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-4 py-2">
-          {/* NEW: Label (Véhicule) */}
+          {/* Label */}
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="label" className="text-right">Véhicule</Label>
+            <Label htmlFor="label" className="text-right">Vehicle</Label>
             <Input
               id="label"
               className="col-span-3"
               value={(form as any).label ?? ""}
               onChange={(e) => setForm((f) => ({ ...f, label: e.target.value }))}
-              placeholder="Nom ou référence du véhicule"
+              placeholder="Vehicle name or reference"
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="depot" className="text-right">Dépôt</Label>
+            <Label htmlFor="depot" className="text-right">Depot</Label>
             <div className="col-span-3">
               <Select
                 value={(form as any).depot_id ?? ""}
                 onValueChange={(val) => setForm((f) => ({ ...f, depot_id: val }))}
               >
                   <SelectTrigger id="depot">
-                  <SelectValue placeholder="Choisir un dépôt..." />
+                  <SelectValue placeholder="Choose a depot..." />
                 </SelectTrigger>
                 <SelectContent>
                   {(depots || []).map((d) => (
@@ -424,7 +412,7 @@ function EditVehicleDialog({
                 onValueChange={(val) => setForm((f) => ({ ...f, type: val as VehicleType }))}
               >
                   <SelectTrigger id="type">
-                  <SelectValue placeholder="Choisir le type…" />
+                  <SelectValue placeholder="Choose a type…" />
                 </SelectTrigger>
                 <SelectContent>
                   {VEHICLE_TYPES.map((t) => (
@@ -438,7 +426,7 @@ function EditVehicleDialog({
           </div>
 
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="weight" className="text-right">Poids (kg)</Label>
+            <Label htmlFor="weight" className="text-right">Weight (kg)</Label>
             <Input
               id="weight"
               inputMode="decimal"
@@ -450,7 +438,7 @@ function EditVehicleDialog({
           </div>
 
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="surface" className="text-right">Surface (m linéaire)</Label>
+            <Label htmlFor="surface" className="text-right">Surface (linear m)</Label>
             <Input
               id="surface"
               inputMode="decimal"
@@ -495,14 +483,14 @@ function EditVehicleDialog({
           </div>
 
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="carburant" className="text-right">Carburant</Label>
+            <Label htmlFor="carburant" className="text-right">Fuel</Label>
             <select
               id="carburant"
               className="col-span-3 h-9 rounded-md border bg-background px-3 text-sm"
               value={(form as any).carburant ?? ""}
               onChange={(e) => setForm((f) => ({ ...f, carburant: e.target.value as any }))}
             >
-              <option value="" disabled>Choisir…</option>
+              <option value="" disabled>Choose…</option>
               {CARBURANTS.map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}
@@ -510,7 +498,7 @@ function EditVehicleDialog({
           </div>
 
           <div className="grid grid-cols-4 items-start gap-4">
-            <Label className="text-right pt-2">Chauffeurs</Label>
+            <Label className="text-right pt-2">Drivers</Label>
             <div className="col-span-3 space-y-2">
               <div className="flex flex-wrap gap-2">
                 {(form.driver_ids as any[] ?? []).length ? (
@@ -536,7 +524,7 @@ function EditVehicleDialog({
                     );
                   })
                 ) : (
-                  <span className="text-sm text-muted-foreground">Aucun chauffeur sélectionné.</span>
+                  <span className="text-sm text-muted-foreground">No driver selected.</span>
                 )}
               </div>
 
@@ -554,7 +542,7 @@ function EditVehicleDialog({
                     e.currentTarget.selectedIndex = 0;
                   }}
                 >
-                  <option value="">Ajouter un chauffeur…</option>
+                  <option value="">Add a driver…</option>
                   {availableDrivers.map((d) => (
                     <option key={String(d.id)} value={String(d.id)}>{d.name}</option>
                   ))}
@@ -566,10 +554,10 @@ function EditVehicleDialog({
 
         <DialogFooter className="gap-2">
           <DialogClose asChild>
-            <Button type="button" variant="outline">Annuler</Button>
+            <Button type="button" variant="outline">Cancel</Button>
           </DialogClose>
           <Button type="button" onClick={handleSave} disabled={saving}>
-            {saving ? "Enregistrement…" : "Enregistrer"}
+            {saving ? "Saving…" : "Save"}
           </Button>
         </DialogFooter>
       </DialogContent>

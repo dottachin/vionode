@@ -25,9 +25,9 @@ type Props = {
 };
 
 const categoryLabel: Record<string, string> = {
-  depot: "Dépôt",
+  depot: "Depot",
   client: "Client",
-  warehouse: "Entrepôt",
+  warehouse: "Warehouse",
 };
 
 export function SiteSelectTable({
@@ -71,20 +71,20 @@ export function SiteSelectTable({
     <div className={className}>
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <Input
-          placeholder="Rechercher un site..."
+          placeholder="Search sites..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full sm:w-64"
         />
         <Select value={category} onValueChange={setCategory}>
           <SelectTrigger className="w-full sm:w-48">
-            <SelectValue placeholder="Filtrer par catégorie" />
+            <SelectValue placeholder="Filter by category" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Toutes les catégories</SelectItem>
-            <SelectItem value="depot">Dépôts</SelectItem>
+            <SelectItem value="all">All categories</SelectItem>
+            <SelectItem value="depot">Depots</SelectItem>
             <SelectItem value="client">Clients</SelectItem>
-            <SelectItem value="warehouse">Entrepôts</SelectItem>
+            <SelectItem value="warehouse">Warehouses</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -104,12 +104,12 @@ export function SiteSelectTable({
                       onChange(selectedIds.filter((id) => !filtered.some((s) => String(s.id) === id)));
                     }
                   }}
-                  aria-label="Sélectionner tous les sites"
+                  aria-label="Select all sites"
                 />
               </TableHead>
-              <TableHead>Nom</TableHead>
-              <TableHead>Adresse</TableHead>
-              <TableHead>Catégorie</TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead>Address</TableHead>
+              <TableHead>Category</TableHead>
               <TableHead>ID</TableHead>
             </TableRow>
           </TableHeader>
@@ -125,7 +125,7 @@ export function SiteSelectTable({
                   onClick={() => toggle(id)}
                 >
                   <TableCell>
-                    <Checkbox checked={checked} onCheckedChange={() => toggle(id)} aria-label={`Sélectionner ${site.name}`} />
+                    <Checkbox checked={checked} onCheckedChange={() => toggle(id)} aria-label={`Select ${site.name}`} />
                   </TableCell>
                   <TableCell className="font-medium">{site.name}</TableCell>
                   <TableCell className="text-sm text-muted-foreground truncate max-w-[220px]">
@@ -141,7 +141,7 @@ export function SiteSelectTable({
             {filtered.length === 0 && (
               <TableRow>
                 <TableCell colSpan={5} className="py-6 text-center text-sm text-muted-foreground">
-                  Aucun site à afficher.
+                  No sites to display.
                 </TableCell>
               </TableRow>
             )}

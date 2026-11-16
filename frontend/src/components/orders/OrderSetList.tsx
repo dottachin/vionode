@@ -26,11 +26,11 @@ type Props = {
 };
 
 function OrderSetList({ sets, onDelete, onRename, onOpen }: Props) {
-  const nf0 = useMemo(() => new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }), []);
-  const nf2 = useMemo(() => new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 }), []);
+  const nf0 = useMemo(() => new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }), []);
+  const nf2 = useMemo(() => new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }), []);
 
   if (!sets?.length) {
-    return <p className="text-muted-foreground">Aucun lot de commandes enregistré.</p>;
+    return <p className="text-muted-foreground">No saved order sets.</p>;
   }
 
   return (
@@ -75,7 +75,7 @@ function OrderSetList({ sets, onDelete, onRename, onOpen }: Props) {
                 )}
                 <span className="inline-flex items-center gap-1">
                   <Package className="h-4 w-4 text-muted-foreground" aria-hidden />
-                  {count} commande{count > 1 ? "s" : ""}
+                  {count} order{count > 1 ? "s" : ""}
                 </span>
               </CardDescription>
             </CardHeader>
@@ -95,7 +95,7 @@ function OrderSetList({ sets, onDelete, onRename, onOpen }: Props) {
               {onOpen && (
                 <div className="pt-2">
                   <Button size="sm" variant="outline" onClick={() => onOpen(s)}>
-                    Ouvrir
+                    Open
                   </Button>
                 </div>
               )}
@@ -134,18 +134,18 @@ function DeleteButton({
       <AlertDialogTrigger asChild>
         <Button size="sm" variant="destructive" className="gap-2" disabled={busy}>
           <Trash2 className="h-4 w-4" />
-          Supprimer
+          Delete
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Supprimer « {name} » ?</AlertDialogTitle>
+          <AlertDialogTitle>Delete “{name}”?</AlertDialogTitle>
           <AlertDialogDescription>
-            Cette action est irréversible. Le lot et ses commandes seront supprimés.
+            This action cannot be undone. The order set and its orders will be deleted.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={busy}>Annuler</AlertDialogCancel>
+          <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
           <AlertDialogAction onClick={handleConfirm} disabled={busy}>
             {busy ? "Suppression…" : "Confirmer"}
           </AlertDialogAction>
@@ -182,25 +182,25 @@ function RenameButton({
       <DialogTrigger asChild>
         <Button size="sm" variant="ghost" className="gap-2" disabled={busy}>
           <Pencil className="h-4 w-4" />
-          Renommer
+          Rename
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[420px]">
         <DialogHeader>
-          <DialogTitle>Renommer le lot</DialogTitle>
+          <DialogTitle>Rename order set</DialogTitle>
           <DialogDescription>ID : {set.id}</DialogDescription>
         </DialogHeader>
         <div className="py-2">
           <Input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Nom du lot"
+            placeholder="Order set name"
             disabled={busy}
           />
         </div>
         <DialogFooter className="gap-2">
           <Button type="button" onClick={handleSave} disabled={!name.trim() || busy}>
-            {busy ? "Enregistrement…" : "Enregistrer"}
+            {busy ? "Saving…" : "Save"}
           </Button>
         </DialogFooter>
       </DialogContent>

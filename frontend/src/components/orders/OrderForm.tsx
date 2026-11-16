@@ -27,9 +27,9 @@ const PARCEL_SURFACE = 0.10;      // ml
 
 type PackageCounts = {
   palettes: number;
-  palettes_hf: number;   // “Palettes HF”
+  palettes_hf: number;   // non-standard pallets
   semi_palettes: number; // “Semi-palettes”
-  colis: number;         // “Colis”
+  colis: number;         // parcels
   rlx: number;           // “RLX” (treated like colis)
 };
 
@@ -121,7 +121,7 @@ function OrderForm({ onAdd, onAddAndStay, allSites }: Props) {
 
   const buildOrder = (): Order | null => {
     if (!form.pickup_site_id?.trim() || !form.delivery_site_id?.trim()) {
-      alert("Pickup et delivery sont requis.");
+      alert("Pickup and delivery are required.");
       return null;
     }
     const surface = computedSurface*SURFACE_SCALE_FACTOR;
@@ -181,7 +181,7 @@ function OrderForm({ onAdd, onAddAndStay, allSites }: Props) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <PackagePlus className="h-5 w-5 text-muted-foreground" aria-hidden />
-          Ajouter une commande
+          Add an order
         </CardTitle>
       </CardHeader>
 
@@ -194,7 +194,7 @@ function OrderForm({ onAdd, onAddAndStay, allSites }: Props) {
               sites={allSites}
               selectedId={form.pickup_site_id ?? ""}
               onSelect={(id) => setField("pickup_site_id", id)}
-              placeholder="Choisir un site de ramassage…"
+              placeholder="Choose a pickup site…"
             />
             {pickupSite && (
               <SiteMiniPreview site={pickupSite} onClear={() => setField("pickup_site_id", "")} />
@@ -207,7 +207,7 @@ function OrderForm({ onAdd, onAddAndStay, allSites }: Props) {
               sites={allSites}
               selectedId={form.delivery_site_id ?? ""}
               onSelect={(id) => setField("delivery_site_id", id)}
-              placeholder="Choisir un site de livraison…"
+              placeholder="Choose a delivery site…"
             />
             {deliverySite && (
               <SiteMiniPreview site={deliverySite} onClear={() => setField("delivery_site_id", "")} />
@@ -218,7 +218,7 @@ function OrderForm({ onAdd, onAddAndStay, allSites }: Props) {
         {/* Poids on its own line, then surface/conditionnement immediately after */}
         <div className="space-y-3">
           <div>
-            <Label htmlFor="weight" className="mb-2 block">Poids (kg)</Label>
+            <Label htmlFor="weight" className="mb-2 block">Weight (kg)</Label>
             <Input
               id="weight"
               type="number"
@@ -232,10 +232,10 @@ function OrderForm({ onAdd, onAddAndStay, allSites }: Props) {
           </div>
 
           <div className="space-y-2">
-            <Label className="block">Conditionnement</Label>
+            <Label className="block">Packaging</Label>
             <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
               <div className="space-y-1">
-                <Label htmlFor="palettes" className="text-xs">Palettes</Label>
+                <Label htmlFor="palettes" className="text-xs">Pallets</Label>
                 <Input
                   id="palettes"
                   type="number"
@@ -247,7 +247,7 @@ function OrderForm({ onAdd, onAddAndStay, allSites }: Props) {
                 />
               </div>
               <div className="space-y-1">
-                <Label htmlFor="palettes_hf" className="text-xs">Palettes HF</Label>
+                <Label htmlFor="palettes_hf" className="text-xs">Pallets (non-standard)</Label>
                 <Input
                   id="palettes_hf"
                   type="number"
@@ -271,7 +271,7 @@ function OrderForm({ onAdd, onAddAndStay, allSites }: Props) {
                 />
               </div>
               <div className="space-y-1">
-                <Label htmlFor="colis" className="text-xs">Colis</Label>
+                <Label htmlFor="colis" className="text-xs">Parcels</Label>
                 <Input
                   id="colis"
                   type="number"
@@ -297,7 +297,7 @@ function OrderForm({ onAdd, onAddAndStay, allSites }: Props) {
             </div>
 
             <div className="mt-2 rounded-md border bg-muted/40 px-3 py-2 text-xs">
-              Surface estimée : <b>{computedSurface.toFixed(2)} ml</b>
+              Estimated surface: <b>{computedSurface.toFixed(2)} ml</b>
             </div>
           </div>
         </div>
@@ -312,20 +312,20 @@ function OrderForm({ onAdd, onAddAndStay, allSites }: Props) {
             />
             <Label htmlFor="refrig" className="flex items-center gap-2">
               <ThermometerSnowflake className="h-4 w-4 text-muted-foreground" aria-hidden />
-              Réfrigération requise
+              Refrigeration required
             </Label>
           </div>
 
           <div>
             <Label className="mb-2 flex items-center gap-2">
               <Zap className="h-4 w-4 text-muted-foreground" aria-hidden />
-              Matières dangereuses
+              Hazardous materials
             </Label>
             <MultiSelect
               value={hazardousTypes}
               onChange={setHazardousTypes}
               options={HAZARD_OPTIONS.map(({ value, label }) => ({ value, label }))}
-              placeholder="Aucune sélection"
+              placeholder="No selection"
             />
           </div>
         </div>
@@ -336,17 +336,17 @@ function OrderForm({ onAdd, onAddAndStay, allSites }: Props) {
             id="notes"
             value={form.notes ?? ""}
             onChange={(e) => setField("notes", e.target.value)}
-            placeholder="Infos complémentaires…"
+            placeholder="Additional notes…"
           />
         </div>
 
         {/* Action buttons */}
         <div className="mt-2 grid gap-2 sm:grid-cols-2">
           <Button onClick={handleAddAndClose} className="w-full">
-            Ajouter & fermer
+            Add & close
           </Button>
           <Button onClick={handleAddAndStay} variant="outline" className="w-full">
-            Ajouter & continuer
+            Add & continue
           </Button>
         </div>
       </CardContent>
@@ -381,16 +381,16 @@ function SiteSelect({
           aria-expanded={open}
         >
           <span className="truncate">
-            {selected ? `${selected.name}${renderCitySuffix(selected)}` : (placeholder ?? "Choisir un site…")}
+            {selected ? `${selected.name}${renderCitySuffix(selected)}` : (placeholder ?? "Choose a site…")}
           </span>
           <kbd className="ml-2 rounded border bg-muted px-1 text-[10px]">⌄</kbd>
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[420px] p-0" align="start">
         <Command>
-          <CommandInput placeholder="Rechercher par nom, ville, adresse…" />
+          <CommandInput placeholder="Search by name, city, address…" />
           <CommandList>
-            <CommandEmpty>Aucun résultat</CommandEmpty>
+            <CommandEmpty>No results</CommandEmpty>
             <CommandGroup heading="Sites">
               {sites.map((s) => (
                 <CommandItem
@@ -431,7 +431,7 @@ function SiteMiniPreview({ site, onClear }: { site: Site; onClear: () => void })
       <button
         type="button"
         className="ml-3 inline-flex rounded p-1 hover:bg-muted"
-        aria-label="Effacer la sélection"
+        aria-label="Clear selection"
         onClick={onClear}
       >
         <X className="h-4 w-4" />

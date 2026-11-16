@@ -28,18 +28,8 @@ class OptimizationResponse:
         self.steps = {}
 
 
-# kg CO₂e per liter (EXACT labels, no normalization, will be selected in UI)
-EMISSION_FACTORS_KG_PER_L = {
-    "Bioéthanol - ED95": 0.85,
-    "Essence - Supercarburant sans plomb (95, E10, 98)": 2.70,
-    "Gazole - B30": 2.64,
-    "Gazole non routier": 3.16,
-    "Gazole routier - B100": 1.22,
-    "Gazole routier - B7": 3.10,
-    "HVO - Huile végétale hydrotraitée (sans changement d'affectation des sols)": 0.54,
-    "Kérosène - Jet A1 ou A (litre)": 3.15,
-    "Electricité (2022 - mix moyen)": 0.05,
-}
+# kg CO₂e per liter; keys must match vehicle.carburant exactly
+from route_optimizer.solver.constraints import EMISSION_FACTORS_KG_PER_L  # noqa: E402
 
 
 # ------------------------------ Unit normalizer ------------------------------ #

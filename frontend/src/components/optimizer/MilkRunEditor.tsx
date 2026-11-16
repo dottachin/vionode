@@ -326,9 +326,9 @@ function MilkRunEditor({
   };
 
   const handleSave = async () => {
-    if (!siteIds.length) return alert("Ajoutez au moins un site.");
-    if (!runName.trim()) return alert("Donnez un nom au milk run.");
-    if (!depotId) return alert("Choisissez un dépôt.");
+    if (!siteIds.length) return alert("Add at least one site.");
+    if (!runName.trim()) return alert("Give the milk run a name.");
+    if (!depotId) return alert("Choose a depot.");
     setBusy(true);
     try {
       const payload: any = {
@@ -354,16 +354,16 @@ function MilkRunEditor({
       }
     } catch (e) {
       console.error(e);
-      alert("Échec de l’enregistrement.");
+      alert("Save failed.");
     } finally {
       setBusy(false);
     }
   };
 
   const handleSaveAs = async () => {
-    if (!siteIds.length) return alert("Ajoutez au moins un site.");
-    if (!depotId) return alert("Choisissez un dépôt.");
-    const name = prompt("Nom pour la nouvelle copie :", runName ? `${runName} (copie)` : "");
+    if (!siteIds.length) return alert("Add at least one site.");
+    if (!depotId) return alert("Choose a depot.");
+    const name = prompt("Name for the new copy:", runName ? `${runName} (copy)` : "");
     if (!name) return;
     setBusy(true);
     try {
@@ -381,7 +381,7 @@ function MilkRunEditor({
       onAfterSave?.(created);
     } catch (e) {
       console.error(e);
-      alert("Échec de la duplication.");
+      alert("Duplicate failed.");
     } finally {
       setBusy(false);
     }
@@ -389,7 +389,7 @@ function MilkRunEditor({
 
   const handleDelete = async () => {
     if (!selectedRun) return;
-    if (!confirm(`Supprimer “${selectedRun.name}” ?`)) return;
+    if (!confirm(`Delete “${selectedRun.name}”?`)) return;
     setBusy(true);
     try {
       await deleteMilkRun(selectedRun.id);
@@ -407,7 +407,7 @@ function MilkRunEditor({
       forceOnChange();
     } catch (e) {
       console.error(e);
-      alert("Échec de la suppression.");
+      alert("Delete failed.");
     } finally {
       setBusy(false);
     }
@@ -457,7 +457,7 @@ function MilkRunEditor({
             <MapIcon className="h-5 w-5 text-muted-foreground" aria-hidden />
             Milk runs
           </CardTitle>
-          <CardDescription>Créer, modifier, organiser les sites, choisir un dépôt et les véhicules.</CardDescription>
+          <CardDescription>Create, edit and order sites, choose a depot and vehicles.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Top selectors */}
@@ -465,7 +465,7 @@ function MilkRunEditor({
             <div className="flex flex-col gap-2">
               <Label className="flex items-center gap-2">
                 <List className="h-4 w-4 text-muted-foreground" aria-hidden />
-                Sélectionner un milk run
+                Select a milk run
               </Label>
               <Select
                 value={selectedRun?.id ?? ""}
@@ -475,7 +475,7 @@ function MilkRunEditor({
                 }}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Choisir..." />
+                  <SelectValue placeholder="Choose..." />
                 </SelectTrigger>
                 <SelectContent>
                   {milkRuns.map((run) => (
@@ -490,23 +490,23 @@ function MilkRunEditor({
             <div className="flex flex-col gap-2">
               <Label className="flex items-center gap-2">
                 <Search className="h-4 w-4 text-muted-foreground" aria-hidden />
-                Nom
+                Name
               </Label>
-              <Input value={runName} onChange={(e) => setRunName(e.target.value)} placeholder="Nom du milk run" />
+              <Input value={runName} onChange={(e) => setRunName(e.target.value)} placeholder="Milk run name" />
             </div>
 
             {/* Searchable Depot combobox */}
             <div className="flex flex-col gap-2">
               <Label className="flex items-center gap-2">
                 <Home className="h-4 w-4 text-muted-foreground" aria-hidden />
-                Dépôt
+                Depot
               </Label>
               <Popover open={depotOpen} onOpenChange={setDepotOpen}>
                 <PopoverTrigger asChild>
                   <Button variant="outline" className="w-full justify-between">
                     {depotId
                       ? `${siteMap.get(depotId)?.name ?? depotId}${renderCitySuffix(siteMap.get(depotId)!)}`
-                      : "Choisir un site"}
+                      : "Choose a site"}
                     <kbd className="ml-2 rounded border bg-muted px-1 text-[10px]">⌄</kbd>
                   </Button>
                 </PopoverTrigger>
@@ -514,12 +514,12 @@ function MilkRunEditor({
                 <PopoverContent className="w-[420px] p-0" align="start">
                   <Command>
                     <CommandInput
-                      placeholder="Rechercher par nom, ville, adresse…"
+                      placeholder="Search by name, city, address…"
                       value={depotQuery}
                       onValueChange={setDepotQuery}
                     />
                     <CommandList ref={depotListRef} className="max-h-64 overflow-y-auto">
-                      <CommandEmpty>Aucun site</CommandEmpty>
+                      <CommandEmpty>No sites</CommandEmpty>
                       <CommandGroup heading="Sites">
                         {allSites
                           .filter((s) => {
@@ -556,40 +556,40 @@ function MilkRunEditor({
             <div className="flex flex-col gap-2">
               <Label className="flex items-center gap-2">
                 <Truck className="h-4 w-4 text-muted-foreground" aria-hidden />
-                Véhicules (disponibles)
+                Vehicles (available)
               </Label>
               <Popover open={vehicleOpen} onOpenChange={setVehicleOpen}>
                 <PopoverTrigger asChild>
                   <Button variant="outline" className="w-full justify-between">
                     {selectedVehicleIds.length > 0
-                      ? `${selectedVehicleIds.length} sélectionné(s)`
-                      : "Sélectionner…"}
+                      ? `${selectedVehicleIds.length} selected`
+                      : "Select…"}
                     <kbd className="ml-2 rounded border bg-muted px-1 text-[10px]">⌄</kbd>
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[420px] p-0" align="start">
                   <div className="flex items-center justify-between px-2 py-2">
                     <div className="text-xs text-muted-foreground">
-                      {selectedVehicleIds.length} sélectionné(s)
+                      {selectedVehicleIds.length} selected
                     </div>
                     <div className="flex items-center gap-2">
                       <Button size="sm" variant="outline" onClick={selectAllVehicles}>
-                        Tout sélectionner
+                        Select all
                       </Button>
                       <Button size="sm" variant="outline" onClick={clearAllVehicles}>
-                        Tout retirer
+                        Remove all
                       </Button>
                     </div>
                   </div>
                   <Command>
                     <CommandInput
-                      placeholder="Rechercher (label, id)…"
+                      placeholder="Search (label, id)…"
                       value={vehicleQuery}
                       onValueChange={setVehicleQuery}
                     />
                     <CommandList ref={vehicleListRef} className="max-h-64 overflow-y-auto">
-                      <CommandEmpty>Aucun véhicule</CommandEmpty>
-                      <CommandGroup heading="Véhicules">
+                      <CommandEmpty>No vehicles</CommandEmpty>
+                      <CommandGroup heading="Vehicles">
                         {filteredVehicles.map((v) => {
                           const id = v.id;
                           const checked = selectedVehicleIds.includes(id);
@@ -618,7 +618,7 @@ function MilkRunEditor({
           <div className="flex flex-wrap items-center gap-2">
             <Button variant="secondary" onClick={handleNew} disabled={busy} className="gap-2">
               <Plus className="h-4 w-4" />
-              Nouveau
+              New
             </Button>
             <Button
               onClick={handleSave}
@@ -626,7 +626,7 @@ function MilkRunEditor({
               className="gap-2"
             >
               <Save className="h-4 w-4" />
-              {selectedRun ? (isDirty ? "Enregistrer les modifications" : "Sauvegarder") : "Créer"}
+              {selectedRun ? (isDirty ? "Save changes" : "Save") : "Create"}
             </Button>
             <Button
               variant="outline"
@@ -635,14 +635,14 @@ function MilkRunEditor({
               className="gap-2"
             >
               <Copy className="h-4 w-4" />
-              Enregistrer sous…
+              Save as…
             </Button>
             <Button variant="destructive" onClick={handleDelete} disabled={busy || !selectedRun} className="gap-2">
               <Trash2 className="h-4 w-4" />
-              Supprimer
+              Delete
             </Button>
             {isDirty && selectedRun && (
-              <span className="ml-2 text-xs text-muted-foreground">Modifications non enregistrées</span>
+              <span className="ml-2 text-xs text-muted-foreground">Unsaved changes</span>
             )}
           </div>
         </CardContent>
@@ -653,27 +653,27 @@ function MilkRunEditor({
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-base">
             <Plus className="h-4 w-4 text-muted-foreground" aria-hidden />
-            Ajouter un site
+            Add a site
           </CardTitle>
         </CardHeader>
         <CardContent>
           <Popover open={isAddOpen} onOpenChange={setIsAddOpen}>
             <PopoverTrigger asChild>
               <Button variant="outline" className="w-full justify-between">
-                Ajouter un site…
+                Add a site…
                 <kbd className="ml-2 rounded border bg-muted px-1 text-[10px]">⌄</kbd>
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-[420px] p-0" align="start">
               <Command>
                 <CommandInput
-                  placeholder="Rechercher par nom, ville, adresse…"
+                  placeholder="Search by name, city, address…"
                   value={addQuery}
                   onValueChange={setAddQuery}
                 />
                 <CommandList ref={addSiteListRef} className="max-h-64 overflow-y-auto">
-                  <CommandEmpty>Aucun résultat</CommandEmpty>
-                  <CommandGroup heading="Sites disponibles">
+                  <CommandEmpty>No results</CommandEmpty>
+                  <CommandGroup heading="Available sites">
                     {availableSites
                       .filter((s) => {
                         const q = addQuery.trim().toLowerCase();
@@ -708,7 +708,7 @@ function MilkRunEditor({
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-base">
             <MapIcon className="h-4 w-4 text-muted-foreground" aria-hidden />
-            Sites sélectionnés (ordonnés)
+            Selected sites (ordered)
             <span className="text-xs font-normal text-muted-foreground">({siteIds.length})</span>
           </CardTitle>
         </CardHeader>
@@ -717,13 +717,13 @@ function MilkRunEditor({
             <div />
             <div className="flex items-center gap-2">
               <Input
-                placeholder="Filtrer les sélectionnés…"
+                placeholder="Filter selected…"
                 value={selectedFilter}
                 onChange={(e) => setSelectedFilter(e.target.value)}
                 className="ml-3 h-8 w-56"
               />
               <Button variant="outline" size="sm" onClick={clearAllSites} disabled={!siteIds.length}>
-                Tout retirer
+                Remove all
               </Button>
             </div>
           </div>
@@ -753,16 +753,16 @@ function MilkRunEditor({
                     {/* Per-site vehicle assignment */}
                     <div className="flex items-center gap-2 shrink-0">
                       <div className="w-[220px]">
-                        <Label className="sr-only">Véhicule</Label>
+                        <Label className="sr-only">Vehicle</Label>
                         <Select
                           value={assigned ? assigned : NONE_VALUE}
                           onValueChange={(vid) => setVehicleForSite(id, vid === NONE_VALUE ? "" : vid)}
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder="Affecter un véhicule…" />
+                            <SelectValue placeholder="Assign a vehicle…" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value={NONE_VALUE}>— Aucun —</SelectItem>
+                            <SelectItem value={NONE_VALUE}>— None —</SelectItem>
 
                             {/* Selected vehicles first */}
                             {selectedVehicleIds
@@ -787,14 +787,14 @@ function MilkRunEditor({
                         </Select>
                       </div>
 
-                      <Button variant="ghost" size="icon" aria-label="Monter" onClick={() => moveUp(index)}>
+                      <Button variant="ghost" size="icon" aria-label="Move up" onClick={() => moveUp(index)}>
                         <ChevronUp className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" aria-label="Descendre" onClick={() => moveDown(index)}>
+                      <Button variant="ghost" size="icon" aria-label="Move down" onClick={() => moveDown(index)}>
                         <ChevronDown className="h-4 w-4" />
                       </Button>
                       <Button variant="outline" size="sm" onClick={() => removeSite(id)}>
-                        Retirer
+                        Remove
                       </Button>
                     </div>
                   </li>
@@ -802,7 +802,7 @@ function MilkRunEditor({
               })}
               {!selectedSites.length && (
                 <li className="px-3 py-6 text-center text-sm text-muted-foreground">
-                  Aucun site dans la liste actuelle.
+                  No sites in the current list.
                 </li>
               )}
             </ul>

@@ -86,7 +86,7 @@ class SimpleErrorBoundary extends React.Component<
     if (this.state.hasError) {
       return this.props.fallback ?? (
         <div className="rounded-md border bg-muted/40 p-3 text-sm text-muted-foreground">
-          Affichage indisponible pour cet élément.
+          Display unavailable for this item.
         </div>
       );
     }
@@ -129,10 +129,10 @@ const fmtHHMMFromHours = (h?: number) => {
 
 // Define the rows to compare (canonical units: km, hours, kg)
 const METRICS: MetricRowDef[] = [
-  { key: "total_distance", label: "Distance totale", betterWhen: "lower", format: (v) => `${fmtInt(v)} km` },
-  { key: "total_duration", label: "Durée totale", betterWhen: "lower", format: fmtHHMMFromHours },
+  { key: "total_distance", label: "Total distance", betterWhen: "lower", format: (v) => `${fmtInt(v)} km` },
+  { key: "total_duration", label: "Total duration", betterWhen: "lower", format: fmtHHMMFromHours },
   { key: "total_co2_emissions_kg", label: "CO₂ total", betterWhen: "lower", format: (v) => `${fmt1(v)} kg` },
-  { key: "vehicles_used", label: "Véhicules utilisés", betterWhen: "lower", format: fmtInt },
+  { key: "vehicles_used", label: "Vehicles used", betterWhen: "lower", format: fmtInt },
 ];
 
 
@@ -377,8 +377,8 @@ export default function CompareResultsPage() {
         setDrivers((drvRaw || []) as Driver[]);
       } catch (e) {
         console.error(e);
-        toast.error("Erreur de chargement", {
-          description: "Impossible de récupérer sites, milk runs, lots, véhicules ou chauffeurs.",
+        toast.error("Loading error", {
+          description: "Could not fetch sites, milk runs, order sets, vehicles or drivers.",
         });
       }
     })();
@@ -400,7 +400,7 @@ export default function CompareResultsPage() {
       setAvailableResults(sorted);
     } catch (e) {
       console.error(e);
-      toast.error("Impossible de charger les résultats");
+      toast.error("Could not load results");
     } finally {
       setIsLoading(false);
     }
@@ -436,7 +436,7 @@ export default function CompareResultsPage() {
 
       // Add new
       if (prev.length >= 3) {
-        toast.info("Limite", { description: "Vous pouvez comparer jusqu’à 3 résultats." });
+        toast.info("Limit", { description: "You can compare up to 3 results." });
         return prev;
       }
 
@@ -523,7 +523,7 @@ export default function CompareResultsPage() {
     <div className="space-y-8 p-6">
       <header className="flex items-center gap-2">
         <GitCompare className="h-6 w-6 text-muted-foreground" aria-hidden />
-        <h1 className="text-2xl font-bold">Comparer des résultats</h1>
+        <h1 className="text-2xl font-bold">Compare results</h1>
       </header>
 
       {/* Source + Results Pickers */}
@@ -531,10 +531,10 @@ export default function CompareResultsPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Layers3 className="h-5 w-5 text-muted-foreground" />
-            Choisir la source et les résultats
+            Choose source and results
           </CardTitle>
           <CardDescription>
-            Sélectionnez un <strong>milk run</strong> ou un <strong>lot de commandes</strong>, puis choisissez jusqu’à 3 résultats à comparer.
+            Select a <strong>milk run</strong> or an <strong>order set</strong>, then choose up to 3 results to compare.
           </CardDescription>
         </CardHeader>
 
@@ -546,13 +546,13 @@ export default function CompareResultsPage() {
               <Label className="mb-2 block">Source</Label>
               <Select value={sourceValue} onValueChange={handleChooseParentFromValue}>
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Choisir un milk run ou un lot…" />
+                  <SelectValue placeholder="Choose a milk run or order set…" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
                     <SelectLabel>Milk runs</SelectLabel>
                     {milkRuns.length === 0 ? (
-                      <SelectItem value="mr:_none" disabled>Aucun milk run</SelectItem>
+                      <SelectItem value="mr:_none" disabled>No milk runs</SelectItem>
                     ) : milkRuns.map((r) => (
                       <SelectItem key={`mr:${r.id}`} value={`mr:${r.id}`}>
                         {r.name}
@@ -561,9 +561,9 @@ export default function CompareResultsPage() {
                   </SelectGroup>
                   <SelectSeparator />
                   <SelectGroup>
-                    <SelectLabel>Lots de commandes</SelectLabel>
+                    <SelectLabel>Order sets</SelectLabel>
                     {orderSets.length === 0 ? (
-                      <SelectItem value="os:_none" disabled>Aucun lot</SelectItem>
+                      <SelectItem value="os:_none" disabled>No order sets</SelectItem>
                     ) : orderSets.map((s) => (
                       <SelectItem key={`os:${s.id}`} value={`os:${s.id}`}>
                         {s.name}
@@ -576,7 +576,7 @@ export default function CompareResultsPage() {
 
             {/* Results Multi-Select */}
             <div className="w-full lg:flex-1">
-              <Label className="mb-2 block">Résultats à comparer</Label>
+              <Label className="mb-2 block">Results to compare</Label>
 
               <Popover open={resultsPickerOpen} onOpenChange={setResultsPickerOpen}>
                 <PopoverTrigger asChild>
@@ -588,10 +588,10 @@ export default function CompareResultsPage() {
                     disabled={!activeParentId || isLoading}
                   >
                     {selectedResultIds.length > 0
-                      ? `${selectedResultIds.length} sélectionné(s)`
+                      ? `${selectedResultIds.length} selected`
                       : activeParentId
-                        ? "Choisir des résultats…"
-                        : "Choisissez d’abord une source"}
+                        ? "Choose results…"
+                        : "Choose a source first"}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
@@ -603,17 +603,17 @@ export default function CompareResultsPage() {
                     }}
                   >
                     <CommandInput
-                      placeholder="Rechercher par #id, nom, date, arc, mode…"
+                      placeholder="Search by #id, name, date, arc, mode…"
                       value={query}
                       onValueChange={setQuery}
                     />
-                    <CommandEmpty>Aucun résultat.</CommandEmpty>
+                    <CommandEmpty>No results.</CommandEmpty>
                     <CommandGroup heading={
                       <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <span>Résultats disponibles</span>
+                        <span>Available results</span>
                         <span className="inline-flex items-center gap-1">
                           {isLoading && <Radar className="h-3.5 w-3.5 animate-spin" />}
-                          {filteredAvailable.length} éléments
+                          {filteredAvailable.length} items
                         </span>
                       </div>
                     }>
@@ -647,7 +647,7 @@ export default function CompareResultsPage() {
                                     BASE
                                   </span>
                                 )}
-                                <span className="truncate">{name || `Résultat #${idStr}`}</span>
+                                <span className="truncate">{name || `Result #${idStr}`}</span>
                                 <span className="text-muted-foreground text-xs">{when}</span>
                                 <Badge variant="outline">{arc}/{mode}</Badge>
                               </div>
@@ -659,7 +659,7 @@ export default function CompareResultsPage() {
                   </Command>
                   <div className="flex items-center justify-between border-t p-2">
                     <div className="text-xs text-muted-foreground">
-                      {selectedResultIds.length}/3 sélectionné(s)
+                      {selectedResultIds.length}/3 selected
                       {baselineId && (
                         <span> · base: #{baselineId}</span>
                       )}
@@ -673,10 +673,10 @@ export default function CompareResultsPage() {
                           setBaselineId(null);
                         }}
                       >
-                        Effacer
+                        Clear
                       </Button>
                       <Button size="sm" onClick={() => setResultsPickerOpen(false)}>
-                        Terminer
+                        Done
                       </Button>
                     </div>
                   </div>
@@ -715,23 +715,23 @@ export default function CompareResultsPage() {
             {/* Toggles */}
             <div className="flex flex-col gap-3 w-full lg:w-72">
               <div className="flex items-center justify-between">
-                <Label htmlFor="onlyDiffs" className="text-sm">Différences uniquement</Label>
+                <Label htmlFor="onlyDiffs" className="text-sm">Differences only</Label>
                 <Switch id="onlyDiffs" checked={onlyDiffs} onCheckedChange={setOnlyDiffs} />
               </div>
               <div className="flex items-center justify-between">
-                <Label htmlFor="showMaps" className="text-sm">Afficher les cartes</Label>
+                <Label htmlFor="showMaps" className="text-sm">Show maps</Label>
                 <Switch id="showMaps" checked={showMaps} onCheckedChange={setShowMaps} />
               </div>
               <div className="flex items-center justify-between pt-1">
                 <div className="text-xs text-muted-foreground">
                   {isLoading ? (
                     <span className="inline-flex items-center gap-1">
-                      <Radar className="h-3.5 w-3.5 animate-spin" /> Chargement…
+                      <Radar className="h-3.5 w-3.5 animate-spin" /> Loading…
                     </span>
                   ) : activeParentId ? (
-                    <span>{availableResults.length} résultat(s) trouvés</span>
+                    <span>{availableResults.length} result(s) found</span>
                   ) : (
-                    <span>Choisissez une source</span>
+                    <span>Choose a source</span>
                   )}
                 </div>
                 <div className="flex items-center gap-2">
@@ -744,7 +744,7 @@ export default function CompareResultsPage() {
                     }}
                     disabled={selectedResultIds.length === 0}
                   >
-                    Réinitialiser
+                    Reset
                   </Button>
                   <Button variant="outline" size="sm" onClick={exportCSV} disabled={orderedSelected.length === 0}>
                     <Download className="mr-2 h-4 w-4" />
@@ -765,7 +765,7 @@ export default function CompareResultsPage() {
               <div className="flex items-center gap-2">
                 <ListChecks className="h-4 w-4 text-muted-foreground" />
                 <div className="text-sm">
-                  {orderedSelected.length} sélectionné(s)
+                  {orderedSelected.length} selected
                   {orderedSelected[0] && (
                     <span className="text-muted-foreground"> — base: #{String(orderedSelected[0].id)}</span>
                   )}
@@ -779,7 +779,7 @@ export default function CompareResultsPage() {
                     setBaselineId(null);
                   }}
                 >
-                  Réinitialiser
+                  Reset
                 </Button>
                 <Button variant="outline" onClick={exportCSV}>
                   <Download className="mr-2 h-4 w-4" />
@@ -792,7 +792,7 @@ export default function CompareResultsPage() {
                     setBaselineId(null);
                   }}
                 >
-                  Retirer toute la comparaison
+                  Clear comparison
                 </Button>
               </div>
             </div>
@@ -804,11 +804,11 @@ export default function CompareResultsPage() {
       {orderedSelected.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Résumé de comparaison</CardTitle>
+            <CardTitle>Comparison summary</CardTitle>
             <CardDescription>
-              La base est toujours affichée à gauche. Couleurs vs base :{" "}
-              <span className="text-emerald-700">vert = meilleur</span>,{" "}
-              <span className="text-rose-700">rouge = moins bon</span>.
+              The baseline is always shown on the left. Colors vs baseline:{" "}
+              <span className="text-emerald-700">green = better</span>,{" "}
+              <span className="text-rose-700">red = worse</span>.
             </CardDescription>
           </CardHeader>
           <CardContent className="overflow-x-auto">
@@ -818,7 +818,7 @@ export default function CompareResultsPage() {
                 style={{ gridTemplateColumns: `260px repeat(${orderedSelected.length}, minmax(220px,1fr))` }}
               >
                 {/* Header row (names) */}
-                <div className="px-3 py-2 text-xs font-semibold uppercase text-muted-foreground">Métrique</div>
+                <div className="px-3 py-2 text-xs font-semibold uppercase text-muted-foreground">Metric</div>
                 {orderedSelected.map((rec, idx) => (
                   <div
                     key={String(rec.id)}
@@ -886,7 +886,7 @@ export default function CompareResultsPage() {
       {/* Detailed cards — BASE first, always left */}
       {orderedSelected.length > 0 && (
         <div className="space-y-3">
-          <h2 className="text-xl font-semibold">Détails</h2>
+          <h2 className="text-xl font-semibold">Details</h2>
           <div
             className="grid gap-6"
             style={{ gridTemplateColumns: `repeat(${detailCols}, minmax(0, 1fr))` }}
@@ -912,7 +912,7 @@ export default function CompareResultsPage() {
                       <div className="min-w-0">
                         <CardTitle className="flex items-center gap-2">
                           {isBaseline && <Badge variant="default">BASE</Badge>}
-                          <span className="truncate">{name || `Résultat #${idStr}`}</span>
+                          <span className="truncate">{name || `Result #${idStr}`}</span>
                           <Badge variant={isBaseline ? "default" : "outline"}>
                             {arc}/{mode}
                           </Badge>
@@ -927,10 +927,10 @@ export default function CompareResultsPage() {
                           size="sm"
                           variant="secondary"
                           onClick={() => toggleResult(idStr)}
-                          title="Retirer de la comparaison"
+                          title="Remove from comparison"
                         >
                           <X className="mr-2 h-4 w-4" />
-                          Retirer de la comparaison
+                          Remove from comparison
                         </Button>
                       </div>
                     </div>
@@ -951,12 +951,12 @@ export default function CompareResultsPage() {
                         </SimpleErrorBoundary>
                       ) : (
                         <div className="text-sm text-muted-foreground flex items-center gap-2">
-                          <span>Carte masquée</span>
+                          <span>Map hidden</span>
                         </div>
                       )
                     ) : (
                       <p className="text-sm text-muted-foreground">
-                        Aucun détail de résultat enregistré pour cet item.
+                        No result details saved for this item.
                       </p>
                     )}
                   </CardContent>

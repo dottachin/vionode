@@ -199,8 +199,8 @@ export default function MilkRunPage() {
         setDrivers(driversRes);
       } catch (e) {
         console.error(e);
-        toast.error("Erreur de chargement", {
-          description: "Impossible de récupérer sites, véhicules ou chauffeurs.",
+        toast.error("Loading error", {
+          description: "Could not fetch sites, vehicles or drivers.",
         });
       }
     })();
@@ -224,8 +224,8 @@ export default function MilkRunPage() {
       })
       .catch((e: any) => {
         console.error(e);
-        toast.error("Historique indisponible", {
-          description: "Impossible de récupérer les optimisations.",
+        toast.error("History unavailable", {
+          description: "Could not fetch optimizations.",
         });
       });
   }, [selectedRunId]);
@@ -378,15 +378,15 @@ export default function MilkRunPage() {
   // --- Manual scoring & save ---
   const scoreAndSaveManual = async () => {
     if (!selectedRunId || !selectedRun) {
-      toast.info("Sélectionnez ou créez d’abord un milk run pour enregistrer le parcours manuel.");
+      toast.info("Select or create a milk run first to save the manual route.");
       return;
     }
     if (!depotId || siteIds.length === 0 || !depot) {
-      toast.warning("Dépôt et sites requis", { description: "Sélectionnez un dépôt et au moins un site.", });
+      toast.warning("Depot and sites required", { description: "Select a depot and at least one site.", });
       return;
     }
     if (!manualVehicles.length) {
-      toast.warning("Véhicule requis", { description: "Affectez au moins un véhicule (via la carte d’affectation par site).", });
+      toast.warning("Vehicle required", { description: "Assign at least one vehicle (via the per-site assignment card).", });
       return;
     }
 
@@ -428,7 +428,7 @@ export default function MilkRunPage() {
       };
 
       const p = Promise.resolve().then(() => scoreManualRoute(input));
-      toast.promise(p, { loading: "Calcul du parcours manuel…", success: "Parcours manuel calculé", error: "Échec du calcul du parcours manuel", });
+      toast.promise(p, { loading: "Computing manual route…", success: "Manual route computed", error: "Failed to compute manual route", });
 
       const res = await p;
 
@@ -440,7 +440,7 @@ export default function MilkRunPage() {
 
       const hasTemp = [depotId, ...siteIds].some((id) => String(id).startsWith("temp-"));
       if (hasTemp) {
-        toast.error("Impossible de sauvegarder", { description: "Enregistrez d'abord les sites temporaires." });
+        toast.error("Cannot save", { description: "Save the temporary sites first." });
         return;
       }
 
@@ -488,7 +488,7 @@ export default function MilkRunPage() {
         }
       } catch (dbErr) {
         console.error(dbErr);
-        toast.error("Sauvegarde (manuel) impossible", { description: "Vérifiez le backend DB.", });
+        toast.error("Could not save (manual)", { description: "Check the backend database.", });
       }
     } catch (e) {
       console.error(e);
@@ -502,15 +502,15 @@ export default function MilkRunPage() {
   // Optimization handler
   const handleOptimize = async () => {
     if (!depotId || siteIds.length === 0) {
-      toast.warning("Dépôt et sites requis", { description: "Sélectionnez un dépôt et au moins un site.", });
+      toast.warning("Depot and sites required", { description: "Select a depot and at least one site.", });
       return;
     }
     if (!depot) {
-      toast.error("Dépôt introuvable");
+      toast.error("Depot not found");
       return;
     }
     if (!optVehicles.length) {
-      toast.warning("Véhicule requis", { description: "Sélectionnez au moins un véhicule (liste des véhicules).", });
+      toast.warning("Vehicle required", { description: "Select at least one vehicle (vehicle list).", });
       return;
     }
 
@@ -566,14 +566,14 @@ export default function MilkRunPage() {
       };
 
       if (!finalInput.vehicles || finalInput.vehicles.length === 0) {
-        toast.error("Aucun véhicule dans la requête", { description: "Vérifiez la sélection des véhicules.", });
+        toast.error("No vehicles in request", { description: "Check the vehicle selection.", });
         setLoading(false);
         clearOptProgress();
         return;
       }
 
       const p = Promise.resolve().then(() => optimizeRoutes(finalInput));
-      toast.promise(p, { loading: "Optimisation en cours…", success: "Optimisation terminée", error: "Erreur lors de l’optimisation", });
+      toast.promise(p, { loading: "Optimizing…", success: "Optimization complete", error: "Optimization failed", });
 
       const res = await p;
       setResult(res.result);
@@ -595,12 +595,12 @@ export default function MilkRunPage() {
   // Save optimized (from results component)
   const handleSaveOptimized = async (name: string) => {
     if (!depotId || siteIds.length === 0 || !lastOptimMetrics) {
-      toast.error("Donnees insuffisantes pour sauvegarder");
+      toast.error("Not enough data to save");
       return;
     }
     const hasTemp = [depotId, ...siteIds].some((id) => String(id).startsWith("temp-"));
     if (hasTemp) {
-      toast.error("Impossible de sauvegarder", { description: "Enregistrez d'abord les sites temporaires." });
+      toast.error("Cannot save", { description: "Save the temporary sites first." });
       return;
     }
     try {
@@ -625,7 +625,7 @@ export default function MilkRunPage() {
         note: "optimized",
       };
       await saveOptimization(payload);
-      toast.success("Optimisation sauvegardee");
+      toast.success("Optimization saved");
       if (selectedRunId) {
         const fresh = await fetchOptimizationsByMilkRun(String(selectedRunId));
         const sorted = (fresh || []).slice().sort(
@@ -636,7 +636,7 @@ export default function MilkRunPage() {
       }
     } catch (dbErr) {
       console.error(dbErr);
-      toast.error("Echec de la sauvegarde de l'optimisation", { description: "Verifiez le backend DB." });
+      toast.error("Failed to save optimization", { description: "Check the backend database." });
     } finally {
       setSavingOptimized(false);
     }
@@ -654,11 +654,11 @@ export default function MilkRunPage() {
       setDeletingIds((s: Iterable<string> | null | undefined) => new Set(s).add(String(id)));
       await deleteOptimization(String(id));
       removeHistoryItem(String(id));
-      toast.success("Optimisation supprimée", { description: `#${id} a été supprimée.`, });
+      toast.success("Optimization deleted", { description: `#${id} was deleted.`, });
       if (selectedHistory && String(selectedHistory.id) === String(id)) setSelectedHistory(null);
     } catch (e: any) {
       console.error(e);
-      toast.error("Échec de suppression", { description: e?.message || "Impossible de supprimer cet élément.", });
+      toast.error("Delete failed", { description: e?.message || "Could not delete this item.", });
     } finally {
       setDeletingIds((s: Iterable<string> | null | undefined) => {
         const n = new Set(s);
@@ -674,7 +674,7 @@ export default function MilkRunPage() {
 
   const handleManualButton = () => {
     if (!selectedRunId) {
-      toast.info("Sélectionnez ou créez un milk run avant de calculer le parcours manuel.");
+      toast.info("Select or create a milk run before computing the manual route.");
       return;
     }
     scoreAndSaveManual();
@@ -693,7 +693,7 @@ export default function MilkRunPage() {
       if (vIds.length) setSelectedVehicleIds(vIds);
       setSiteVehicleMap(map);
 
-      toast.success("Contexte restauré", { description: `Rechargé depuis l\u2019historique #${rec.id}.`, });
+      toast.success("Context restored", { description: `Reloaded from history #${rec.id}.`, });
     } catch (e) {
       console.error(e);
     }
@@ -712,7 +712,7 @@ export default function MilkRunPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <RouteIcon className="h-6 w-6 text-muted-foreground" aria-hidden />
-          <h1 className="text-2xl font-bold">Optimisation d’un milk run</h1>
+          <h1 className="text-2xl font-bold">Milk run optimization</h1>
         </div>
       </div>
 
@@ -723,11 +723,11 @@ export default function MilkRunPage() {
             <Button
               variant="outline"
               className="inline-flex items-center gap-2 border-border/70 ring-1 ring-primary/20 shadow-sm"
-              aria-label="Ajouter un site temporaire"
-              title="Ajouter un site temporaire"
+              aria-label="Add a temporary site"
+              title="Add a temporary site"
             >
               <Plus className="h-4 w-4" aria-hidden />
-              Ajouter un site temporaire
+              Add a temporary site
             </Button>
           }
           onCreate={(site) => setTempSites((prev) => [...prev, site])}
@@ -755,7 +755,7 @@ export default function MilkRunPage() {
         }}
         onRunSelected={setSelectedRun}
         onAfterSave={() => {
-          toast.message("Milk run enregistré.", { description: "Cliquez sur « Calculer & sauvegarder le parcours manuel » pour créer un résultat manuel.", });
+          toast.message("Milk run saved.", { description: "Click “Compute & save manual route” to create a manual result.", });
         }}
       />
 
@@ -763,7 +763,7 @@ export default function MilkRunPage() {
       {scoring && (
         <div className="place-items-center">
           <SpinnerWithText
-            label="Calcul du parcours manuel…"
+            label="Computing manual route…"
             progressPct={manualProgressPct}
             elapsedSec={manualElapsedSec}
             expectedSec={manualExpectedSec}
@@ -778,10 +778,10 @@ export default function MilkRunPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <RouteIcon className="h-5 w-5 text-muted-foreground" aria-hidden />
-            Parcours manuel
+            Manual route
           </CardTitle>
           <CardDescription>
-            Calcule et enregistre la MR sur la base des affectations de véhicules par site.
+            Computes and saves the milk run based on the per-site vehicle assignments.
           </CardDescription>
         </CardHeader>
         <Separator />
@@ -793,13 +793,13 @@ export default function MilkRunPage() {
             variant="secondary"
           >
             <Save className="h-4 w-4" aria-hidden />
-            Calculer & sauvegarder le parcours manuel
+            Compute & save manual route
           </Button>
           <div className="mt-2 text-sm text-muted-foreground">
-            {!selectedRunId && "ℹ️ Sélectionnez ou créez un milk run. "}
-            {!depotId && "⚠️ Sélectionnez un dépôt. "}
-            {!siteIds.length && "⚠️ Ajoutez au moins un site. "}
-            {depotId && siteIds.length > 0 && manualVehicleIds.length === 0 && "⚠️ Affectez au moins un véhicule par site (ou pour certains sites). "}
+            {!selectedRunId && "ℹ️ Select or create a milk run. "}
+            {!depotId && "⚠️ Select a depot. "}
+            {!siteIds.length && "⚠️ Add at least one site. "}
+            {depotId && siteIds.length > 0 && manualVehicleIds.length === 0 && "⚠️ Assign at least one vehicle per site (or for some sites). "}
           </div>
         </CardContent>
       </Card>
@@ -816,8 +816,8 @@ export default function MilkRunPage() {
             <AccordionItem value="manual-result">
               <AccordionTrigger>
                 <div className="flex flex-col ml-5">
-                  <span className="font-semibold">Parcours manuel</span>
-                  <span className="text-sm text-muted-foreground">Résultat du dernier calcul (session)</span>
+                  <span className="font-semibold">Manual route</span>
+                  <span className="text-sm text-muted-foreground">Latest result (session)</span>
                 </div>
               </AccordionTrigger>
               <AccordionContent>
@@ -844,7 +844,7 @@ export default function MilkRunPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Gauge className="h-5 w-5 text-muted-foreground" aria-hidden />
-            Paramètres d’optimisation
+            Optimization parameters
           </CardTitle>
         </CardHeader>
         <Separator />
@@ -852,19 +852,19 @@ export default function MilkRunPage() {
           <div className="grid gap-4 md:grid-cols-3">
             <div className="flex-1">
               <Label htmlFor="arc" className="mb-2 block">
-                Stratégie
+                Strategy
               </Label>
               <Select
                 value={optimizationArc}
                 onValueChange={(v: string) => setOptimizationArc(v as Arc)}
               >
                 <SelectTrigger id="arc">
-                  <SelectValue placeholder="Min Temps" />
+                  <SelectValue placeholder="Min time" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="distance">Min Distance</SelectItem>
                   <SelectItem value="co2">Min CO₂</SelectItem>
-                  <SelectItem value="duration">Min Temps</SelectItem>
+                  <SelectItem value="duration">Min time</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -878,11 +878,11 @@ export default function MilkRunPage() {
                 onValueChange={(v: string) => setSolverMode(v as Solver)}
               >
                 <SelectTrigger id="solver">
-                  <SelectValue placeholder="Équilibré" />
+                  <SelectValue placeholder="Balanced" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="balanced">Équilibré</SelectItem>
-                  <SelectItem value="fast">Rapide</SelectItem>
+                  <SelectItem value="balanced">Balanced</SelectItem>
+                  <SelectItem value="fast">Fast</SelectItem>
                   <SelectItem value="optimal">Optimal</SelectItem>
                 </SelectContent>
               </Select>
@@ -891,7 +891,7 @@ export default function MilkRunPage() {
             <div className="flex-1">
               <Label htmlFor="slack" className="mb-2 flex items-center gap-2">
                 <SlidersHorizontal className="h-4 w-4 text-muted-foreground" aria-hidden />
-                Retard/avance autorisé (minutes)
+                Allowed early/late tolerance (minutes)
               </Label>
               <input
                 id="slack"
@@ -915,13 +915,13 @@ export default function MilkRunPage() {
               className="gap-2"
             >
               <Rocket className="h-4 w-4" aria-hidden />
-              Lancer l’optimisation
+              Run optimization
             </Button>
 
             <div className="mt-2 text-sm text-muted-foreground">
-              {!depotId && "⚠️ Sélectionnez un dépôt. "}
-              {!siteIds.length && "⚠️ Ajoutez au moins un site. "}
-              {!optVehicles.length && "⚠️ Sélectionnez au moins un véhicule. "}
+              {!depotId && "⚠️ Select a depot. "}
+              {!siteIds.length && "⚠️ Add at least one site. "}
+              {!optVehicles.length && "⚠️ Select at least one vehicle. "}
             </div>
           </div>
         </CardContent>
@@ -930,7 +930,7 @@ export default function MilkRunPage() {
       {loading && (
         <div className="place-items-center">
           <SpinnerWithText
-            label="Optimisation milk run en cours…"
+            label="Optimizing milk run…"
             progressPct={optProgressPct}
             elapsedSec={optElapsedSec}
             expectedSec={optExpectedSec}
@@ -945,8 +945,8 @@ export default function MilkRunPage() {
         <div className="pt-4 space-y-3">
           <Card>
             <CardHeader>
-              <CardTitle>Parcours optimisé</CardTitle>
-              <CardDescription>Résultat de l’optimiseur selon la stratégie et le mode choisis.</CardDescription>
+              <CardTitle>Optimized route</CardTitle>
+              <CardDescription>Optimizer result for the selected strategy and mode.</CardDescription>
             </CardHeader>
           </Card>
           <OptimizerResults
@@ -966,16 +966,16 @@ export default function MilkRunPage() {
       {selectedRunId && (
         <Card>
           <CardHeader>
-            <CardTitle>Historique des optimisations</CardTitle>
+            <CardTitle>Optimization history</CardTitle>
             <CardDescription>
-              Pour ce milk run : {selectedRun?.name}
+              For this milk run: {selectedRun?.name}
             </CardDescription>
           </CardHeader>
           <Separator />
           <CardContent>
             {history.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                Aucune Optimisation sauvegardee
+                No saved optimizations
               </p>
             ) : (
               <ul className="divide-y">
@@ -1011,7 +1011,7 @@ export default function MilkRunPage() {
                           type="button"
                           onClick={() => setSelectedHistory(h)}
                           className="group text-left flex-1 rounded px-2 py-1 transition hover:bg-muted focus:outline-none focus-visible:ring"
-                          title="Afficher l’aperçu de cette optimisation"
+                          title="Preview this optimization"
                         >
                           <div className="font-medium text-sm flex items-center gap-2">
                             <span className="inline-flex shrink-0 rounded bg-muted px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground">#{idStr}</span>
@@ -1034,26 +1034,26 @@ export default function MilkRunPage() {
                               className="gap-2 shrink-0"
                               disabled={isDeleting}
                               onClick={() => setPendingDeleteId(idStr)}
-                              title="Supprimer cette optimisation"
+                              title="Delete this optimization"
                             >
                               <Trash2 className="h-4 w-4" />
-                              {isDeleting ? "Suppression…" : "Supprimer"}
+                              {isDeleting ? "Deleting…" : "Delete"}
                             </Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Supprimer cette optimisation ?</AlertDialogTitle>
+                              <AlertDialogTitle>Delete this optimization?</AlertDialogTitle>
                               <AlertDialogDescription>
-                                Cette action est irréversible. L’optimisation #{idStr} sera définitivement supprimée.
+                                This action cannot be undone. Optimization #{idStr} will be permanently deleted.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
-                              <AlertDialogCancel>Annuler</AlertDialogCancel>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
                               <AlertDialogAction
                                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                 onClick={() => doDeleteHistory(idStr)}
                               >
-                                Confirmer la suppression
+                                Confirm deletion
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
@@ -1074,7 +1074,7 @@ export default function MilkRunPage() {
           <CardHeader className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
-                Aperçu historique
+                History preview
                 <span className="inline-flex rounded bg-muted px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground">#{String(selectedHistory.id)}</span>
               </CardTitle>
               <CardDescription>
@@ -1085,11 +1085,11 @@ export default function MilkRunPage() {
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" className="gap-2" onClick={() => restoreFromHistory(selectedHistory)} title="Restaurer ce contexte dans l’éditeur">
-                <RotateCcw className="h-4 w-4" /> Restaurer dans l’éditeur
+              <Button variant="outline" size="sm" className="gap-2" onClick={() => restoreFromHistory(selectedHistory)} title="Restore this context in the editor">
+                <RotateCcw className="h-4 w-4" /> Restore in editor
               </Button>
-              <Button variant="ghost" size="sm" className="gap-2" onClick={() => setSelectedHistory(null)} title="Fermer l’aperçu">
-                <X className="h-4 w-4" /> Fermer
+              <Button variant="ghost" size="sm" className="gap-2" onClick={() => setSelectedHistory(null)} title="Close preview">
+                <X className="h-4 w-4" /> Close
               </Button>
             </div>
           </CardHeader>

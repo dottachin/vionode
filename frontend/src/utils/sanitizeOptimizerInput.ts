@@ -1,21 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // src/utils/sanitizeOptimizerInput.ts
+import { SOLVER_SITE_CATEGORIES } from "@/constants/domain";
 
-const allowedCategories = new Set([
-  "depot",
-  "virtual depot",
-  "virtual site",
-  "hub",
-  "atelier",
-  "composant",
-  "fournisseur",
-  "faconnier",
-  "fournisseur exw",
-  "recyclage",
-  "repair",
-  "fournisseur italien",
-  "client",
-]);
+const allowedCategories = new Set<string>(SOLVER_SITE_CATEGORIES);
 
 export function normalizeCategory(raw?: string): string {
   const v = (raw ?? "").trim().toLowerCase();

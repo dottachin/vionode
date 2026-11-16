@@ -154,9 +154,9 @@ export default function OrderManager() {
       setPage(1);
     } catch (e) {
       console.error(e);
-      const msg = "Impossible de charger les lots.";
+      const msg = "Could not load order sets.";
       setSetsError(msg);
-      toast.error("Erreur de chargement", { description: msg });
+      toast.error("Loading error", { description: msg });
     } finally {
       setSetsLoading(false);
     }
@@ -165,29 +165,29 @@ export default function OrderManager() {
   const addOrder = (order: Order) => {
     const unique = { ...order, id: order.id || uuidv4() };
     setOrders((prev) => [...prev, unique]);
-    toast.success("Commande ajoutée", { description: unique.id });
+    toast.success("Order added", { description: unique.id });
   };
 
   const deleteOrder = (id: string) => {
     setOrders((prev) => prev.filter((o) => o.id !== id));
-    toast.info("Commande supprimée", { description: id });
+    toast.info("Order removed", { description: id });
   };
 
   const handleSaveSet = async () => {
     if (!setName.trim()) {
-      toast.warning("Nom requis", { description: "Donnez un nom au lot de commandes." });
+      toast.warning("Name required", { description: "Give the order set a name." });
       return;
     }
     if (orders.length === 0) {
-      toast.warning("Aucune commande", { description: "Ajoutez des commandes avant d’enregistrer." });
+      toast.warning("No orders", { description: "Add orders before saving." });
       return;
     }
 
     const p = saveOrderSet(setName.trim(), orders);
     toast.promise(p, {
-      loading: "Enregistrement du lot…",
-      success: "Lot enregistré avec succès",
-      error: "Erreur lors de l’enregistrement",
+      loading: "Saving order set…",
+      success: "Order set saved",
+      error: "Error while saving",
     });
 
     try {
@@ -195,7 +195,7 @@ export default function OrderManager() {
       setSelectedSetId(saved?.id ?? null);
       await refreshSets();
     } catch (err) {
-      console.error("Erreur enregistrement", err);
+      console.error("Save error", err);
     }
   };
 
@@ -204,13 +204,13 @@ export default function OrderManager() {
       const s = await loadOrderSet(id);
       setOrders(s.orders || []);
       setSelectedSetId(s.id ?? null);
-      toast.success("Lot chargé", {
-        description: `${s.name} (${s.orders?.length ?? 0} commandes)`,
+      toast.success("Order set loaded", {
+        description: `${s.name} (${s.orders?.length ?? 0} orders)`,
       });
       setSetName(s.name ?? "");
     } catch (e) {
       console.error(e);
-      toast.error("Échec du chargement du lot");
+      toast.error("Failed to load order set");
     }
   };
 
@@ -220,9 +220,9 @@ export default function OrderManager() {
     try {
       const p = deleteOrderSet(deleteTarget.id);
       toast.promise(p, {
-        loading: "Suppression du lot…",
-        success: "Lot supprimé",
-        error: "Échec de la suppression du lot",
+        loading: "Deleting order set…",
+        success: "Order set deleted",
+        error: "Failed to delete order set",
       });
       await p;
 
@@ -257,8 +257,8 @@ export default function OrderManager() {
         ]);
       } catch (_err) {
         if (!controller.signal.aborted) {
-          toast.error("Erreur de chargement", {
-            description: "Impossible de récupérer sites / véhicules / chauffeurs.",
+          toast.error("Loading error", {
+            description: "Could not fetch sites / vehicles / drivers.",
           });
         }
       }
@@ -271,7 +271,7 @@ export default function OrderManager() {
   // ---- Submit to solver (no auto-save) ----
   const handleSubmit = async (input: OptimizerInput) => {
     if (!input.depots || input.depots.length === 0) {
-      toast.error("Aucun depot", { description: "Ajoutez au moins un depot avant de lancer l'optimisation." });
+      toast.error("No depot", { description: "Add at least one depot before running the optimization." });
       return;
     }
 
@@ -330,9 +330,9 @@ export default function OrderManager() {
     try {
       const p = optimizeRoutes(fixedInput);
       toast.promise(p, {
-        loading: "Optimisation en cours…",
-        success: "Optimisation terminée",
-        error: "Erreur lors de l’optimisation",
+        loading: "Optimizing…",
+        success: "Optimization complete",
+        error: "Optimization failed",
       });
       const res = await p;
 
@@ -399,17 +399,17 @@ export default function OrderManager() {
   // Save handler used by OptimizerResults
   const handleSaveFromResults = async (name: string) => {
     if (lastHasTempSites) {
-      toast.error("Impossible de sauvegarder", { description: "Enregistrez d'abord les sites temporaires." });
+      toast.error("Cannot save", { description: "Save the temporary sites first." });
       return;
     }
     if (!selectedSetId) {
-      toast.info("Lot non sélectionné", {
-        description: "Sélectionnez un Order Set (ou lancez depuis un lot sauvegardé).",
+      toast.info("No order set selected", {
+        description: "Select an order set (or run from a saved order set).",
       });
       return;
     }
     if (!lastOptimMetrics || !lastDepotId || !lastSiteIds || !lastParams) {
-      toast.error("Données insuffisantes pour sauvegarder");
+      toast.error("Not enough data to save");
       return;
     }
 
@@ -436,11 +436,11 @@ export default function OrderManager() {
     try {
       setSaving(true);
       await saveOptimization(payload);
-      toast.success("Optimisation sauvegardée");
+      toast.success("Optimization saved");
     } catch (dbErr) {
       console.error(dbErr);
-      toast.error("Échec de la sauvegarde de l’optimisation", {
-        description: "Vérifiez le backend DB.",
+      toast.error("Failed to save optimization", {
+        description: "Check the backend database.",
       });
     } finally {
       setSaving(false);
@@ -460,7 +460,7 @@ export default function OrderManager() {
         <header className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
         <div className="flex items-center gap-2">
           <Package className="h-6 w-6 text-muted-foreground" aria-hidden />
-          <h1 className="text-3xl font-bold">Création de commandes</h1>
+          <h1 className="text-3xl font-bold">Order creation</h1>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
@@ -468,14 +468,14 @@ export default function OrderManager() {
             <DialogTrigger asChild>
               <Button type="button" className="inline-flex items-center gap-2">
                 <Plus className="h-4 w-4" aria-hidden />
-                Nouvelle commande
+                New order
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[640px]">
               <DialogHeader>
-                <DialogTitle>Ajouter une commande</DialogTitle>
+                <DialogTitle>Add an order</DialogTitle>
                 <DialogDescription>
-                  Renseignez les informations ci-dessous.
+                  Fill in the details below.
                 </DialogDescription>
               </DialogHeader>
               <div className="pt-2">
@@ -487,7 +487,7 @@ export default function OrderManager() {
                   }}
                   onAddAndStay={(order) => {
                     addOrder(order);
-                    toast.success("Commande ajoutée (vous pouvez en ajouter une autre)");
+                    toast.success("Order added (you can add another one)");
                   }}
                 />
               </div>
@@ -501,18 +501,18 @@ export default function OrderManager() {
       <section aria-labelledby="orders-heading" className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 id="orders-heading" className="text-2xl font-semibold">
-            Commandes
+            Orders
           </h2>
           <TempSiteDialog
             trigger={
               <Button
                 variant="outline"
                 className="inline-flex items-center gap-2 border-border/70 ring-1 ring-primary/20 shadow-sm"
-                aria-label="Ajouter un site temporaire"
-                title="Ajouter un site temporaire"
+                aria-label="Add a temporary site"
+                title="Add a temporary site"
               >
                 <Plus className="h-4 w-4" aria-hidden />
-                Ajouter un site temporaire
+                Add a temporary site
               </Button>
             }
             onCreate={(site) => setTempSites((prev) => [...prev, site])}
@@ -527,18 +527,18 @@ export default function OrderManager() {
         <div className="flex items-end gap-4">
           <div className="flex-1">
             <Label htmlFor="set-name" className="mb-2 block">
-              Nom du lot à sauvegarder
+              Order set name
             </Label>
             <Input
               id="set-name"
-              placeholder="Ex : Livraison jour A"
+              placeholder="e.g. Day A deliveries"
               value={setName}
               onChange={(e) => setSetName(e.target.value)}
             />
           </div>
           <Button onClick={handleSaveSet} className="gap-2">
             <Save className="h-4 w-4" aria-hidden />
-            Sauvegarder le lot
+            Save order set
           </Button>
         </div>
       </div>
@@ -547,7 +547,7 @@ export default function OrderManager() {
       <section aria-labelledby="sets-heading" className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 id="sets-heading" className="text-2xl font-semibold">
-            Lots enregistrés
+            Saved order sets
           </h2>
         </div>
 
@@ -557,9 +557,9 @@ export default function OrderManager() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Nom</TableHead>
-                    <TableHead className="whitespace-nowrap">Créé le</TableHead>
-                    <TableHead className="text-center"># commandes</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead className="whitespace-nowrap">Created</TableHead>
+                    <TableHead className="text-center"># orders</TableHead>
                     <TableHead className="w-[10%] text-center">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -573,7 +573,7 @@ export default function OrderManager() {
                   ) : setsLoading ? (
                     Array.from({ length: 5 }).map((_, i) => (
                       <TableRow key={i}>
-                        <TableCell className="py-6">Chargement…</TableCell>
+                        <TableCell className="py-6">Loading…</TableCell>
                         <TableCell className="py-6" />
                         <TableCell className="py-6" />
                         <TableCell className="py-6" />
@@ -582,7 +582,7 @@ export default function OrderManager() {
                   ) : current.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={4} className="py-8 text-center text-sm text-muted-foreground">
-                        Aucun lot enregistré.
+                        No saved order sets.
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -606,7 +606,7 @@ export default function OrderManager() {
                                 onClick={() => handleLoadSet(s.id)}
                               >
                                 <FolderOpen className="h-4 w-4" aria-hidden />
-                                Charger
+                                Load
                               </Button>
                               <Button
                                 size="sm"
@@ -618,11 +618,11 @@ export default function OrderManager() {
                                 }}
                               >
                                 <Trash2 className="h-4 w-4" aria-hidden />
-                                Supprimer
+                                Delete
                               </Button>
                               {isActive && (
                                 <span className="ml-2 rounded bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
-                                  Actif
+                                  Active
                                 </span>
                               )}
                             </div>
@@ -649,7 +649,7 @@ export default function OrderManager() {
               onClick={() => setPage(1)}
               disabled={page === 1 || setsLoading}
             >
-              « Première
+              « First
             </Button>
             <Button
               variant="outline"
@@ -657,7 +657,7 @@ export default function OrderManager() {
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1 || setsLoading}
             >
-              ‹ Précédente
+              ‹ Previous
             </Button>
             <Button
               variant="outline"
@@ -665,7 +665,7 @@ export default function OrderManager() {
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages || setsLoading}
             >
-              Suivante ›
+              Next ›
             </Button>
             <Button
               variant="outline"
@@ -673,7 +673,7 @@ export default function OrderManager() {
               onClick={() => setPage(totalPages)}
               disabled={page === totalPages || setsLoading}
             >
-              Dernière »
+              Last »
             </Button>
           </div>
         </div>
@@ -683,7 +683,7 @@ export default function OrderManager() {
       <section className="space-y-4">
         <div className="flex items-center gap-2">
           <RouteIcon className="h-5 w-5 text-muted-foreground" aria-hidden />
-          <h2 className="text-2xl font-semibold">Optimisation de tournées</h2>
+          <h2 className="text-2xl font-semibold">Route optimization</h2>
         </div>
         {/* Form AFTER results */}
         <OptimizerForm
@@ -692,7 +692,7 @@ export default function OrderManager() {
           vehicles={vehicles}
           sites={allSites}
           onSubmit={handleSubmit}
-          // keep the selected set synced when running from "Lot sauvegardé"
+          // keep the selected set synced when running from a saved order set
           onSourceChange={(mode) => {
             if (mode !== "saved") setSelectedSetId(null);
           }}
@@ -705,7 +705,7 @@ export default function OrderManager() {
         {loading && (
           <div className="grid place-items-center py-6">
             <SpinnerWithText
-              label="Optimisation en cours…"
+              label="Optimizing…"
               progressPct={progressPct}
               elapsedSec={elapsedSec}
               expectedSec={expectedSec ?? undefined}
@@ -719,8 +719,8 @@ export default function OrderManager() {
           <div className="space-y-3">
             <ResultSummary
               result={result}
-              title="Résumé de l'optimisation"
-              description="Principaux indicateurs de la tournée."
+              title="Optimization summary"
+              description="Key route metrics."
             />
             <OptimizerResults
               result={result}
@@ -743,25 +743,25 @@ export default function OrderManager() {
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Supprimer ce lot ?</AlertDialogTitle>
+            <AlertDialogTitle>Delete this order set?</AlertDialogTitle>
             <AlertDialogDescription>
               {deleteTarget ? (
                 <>
-                  Cette action est irréversible. Le lot <b>{deleteTarget.name}</b> sera supprimé
-                  définitivement. Les commandes du lot ne seront plus accessibles via la liste des lots.
+                  This action cannot be undone. Order set <b>{deleteTarget.name}</b> will be permanently
+                  deleted. Its orders will no longer be accessible from the order set list.
                 </>
               ) : (
-                "Cette action est irréversible."
+                "This action cannot be undone."
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               className="bg-red-600 hover:bg-red-700"
               onClick={handleDeleteSet}
             >
-              Supprimer
+              Delete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

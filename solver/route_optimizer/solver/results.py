@@ -1,7 +1,7 @@
 from route_optimizer.logging_config import get_logger
 from time import perf_counter
 from typing import Dict, List
-from route_optimizer.models.schemas import Order, SolverResult
+from route_optimizer.models.schemas import EquipementEnum, Order, SolverResult
 
 logger = get_logger(__name__)
 
@@ -386,7 +386,7 @@ class ResultProcessor:
             order.hazardous_types
             and not reasons
             and not any(
-                "Contenants pour matières dangereuses" in v.equipements
+                EquipementEnum.HAZARDOUS_MATERIAL_CONTAINER in v.equipements
                 for v in self.solver.vehicles
             )
         ):

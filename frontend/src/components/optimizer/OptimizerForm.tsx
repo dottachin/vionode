@@ -92,7 +92,7 @@ function OptimizerForm({
   const [savedSets, setSavedSets] = useState<OrderSet[]>([]);
   const [selectedSetId, setSelectedSetId] = useState("");
 
-  // ✓ Default strategy: Min Temps
+  // ✓ Default strategy: Min time
   const [arc, setArc] = useState<Arc>("duration");
 
   const [solver, setSolver] = useState<SolverMode>("balanced");
@@ -154,7 +154,7 @@ function OptimizerForm({
     if (mode === "saved") {
       fetchOrderSets().then(setSavedSets).catch((e) => {
         console.error(e);
-        toast.error("Impossible de charger les lots sauvegardés");
+        toast.error("Could not load saved order sets");
       });
     }
     onSourceChange?.(mode);
@@ -193,7 +193,7 @@ function OptimizerForm({
       orders = inMemoryOrders;
     } else {
       if (!selectedSetId) {
-        toast.warning("Lot requis", { description: "Sélectionnez un lot sauvegardé." });
+        toast.warning("Order set required", { description: "Select a saved order set." });
         return;
       }
       try {
@@ -201,28 +201,28 @@ function OptimizerForm({
         orders = set.orders || [];
       } catch (e) {
         console.error(e);
-        toast.error("Échec du chargement du lot sélectionné");
+        toast.error("Failed to load the selected order set");
         return;
       }
     }
 
     if (!orders.length) {
-      toast.warning("Aucune commande", { description: "Ajoutez des commandes ou choisissez un lot non vide." });
+      toast.warning("No orders", { description: "Add orders or choose a non-empty order set." });
       return;
     }
 
     if (depotSites.length === 0) {
-      toast.error("Aucun dépôt", { description: "Créez au moins un site de catégorie dépôt." });
+      toast.error("No depot", { description: "Create at least one site with category depot." });
       return;
     }
 
     if (!selectedDepotIds.length) {
-      toast.warning("Dépôt requis", { description: "Sélectionnez au moins un dépôt." });
+      toast.warning("Depot required", { description: "Select at least one depot." });
       return;
     }
 
     if (!selectedVehicleIds.length) {
-      toast.warning("Véhicule requis", { description: "Sélectionnez au moins un véhicule." });
+      toast.warning("Vehicle required", { description: "Select at least one vehicle." });
       return;
     }
 
@@ -258,15 +258,15 @@ function OptimizerForm({
       .filter(Boolean) as any[];
 
     if (missingSiteIds.length) {
-      toast.error("Sites introuvables", {
-        description: `Les IDs suivants sont absents : ${missingSiteIds.join(", ")}`,
+      toast.error("Sites not found", {
+        description: `The following IDs are missing: ${missingSiteIds.join(", ")}`,
       });
       return;
     }
 
     if (!optimizerOrders.length) {
-      toast.error("Aucune commande exploitable", {
-        description: "Vérifiez les sites de pickup/livraison.",
+      toast.error("No usable orders", {
+        description: "Check the pickup/delivery sites.",
       });
       return;
     }
@@ -327,10 +327,10 @@ function OptimizerForm({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Database className="h-5 w-5 text-muted-foreground" aria-hidden />
-          Préparer l’optimisation
+          Prepare optimization
         </CardTitle>
         <CardDescription>
-          Sélection des commandes, véhicules, stratégie et paramètres du solveur.
+          Select orders, vehicles, strategy and solver parameters.
         </CardDescription>
       </CardHeader>
       <Separator />
@@ -340,15 +340,15 @@ function OptimizerForm({
           <div className="flex-1">
             <Label className="mb-2 flex items-center gap-2">
               <FolderOpen className="h-4 w-4 text-muted-foreground" aria-hidden />
-              Source des commandes
+              Order source
             </Label>
             <Select value={mode} onValueChange={(v: Mode) => setMode(v)}>
               <SelectTrigger>
-                <SelectValue placeholder="Choisir une source" />
+                <SelectValue placeholder="Choose a source" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="memory">Commandes actuelles</SelectItem>
-                <SelectItem value="saved">Lot sauvegardé</SelectItem>
+                <SelectItem value="memory">Current orders</SelectItem>
+                <SelectItem value="saved">Saved order set</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -363,34 +363,34 @@ function OptimizerForm({
               <PopoverTrigger asChild>
                 <Button variant="outline" className="w-full justify-between">
                   {selectedDepotIds.length > 0
-                    ? `${selectedDepotIds.length} sélectionné(s)`
-                    : "Sélectionner…"}
+                    ? `${selectedDepotIds.length} selected`
+                    : "Select…"}
                   <kbd className="ml-2 rounded border bg-muted px-1 text-[10px]">⌄</kbd>
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-[420px] p-0" align="start">
                 <div className="flex items-center justify-between px-2 py-2">
                   <div className="text-xs text-muted-foreground">
-                    {selectedDepotIds.length} sélectionné(s)
+                    {selectedDepotIds.length} selected
                   </div>
                   <div className="flex items-center gap-2">
                     <Button size="sm" variant="outline" onClick={() => setSelectedDepotIds(depotSites.map((d) => d.id))} disabled={!depotSites.length}>
-                      Tout sélectionner
+                      Select all
                     </Button>
                     <Button size="sm" variant="outline" onClick={() => setSelectedDepotIds([])}>
-                      Tout retirer
+                      Remove all
                     </Button>
                   </div>
                 </div>
                 <Command>
                   <CommandInput
-                    placeholder="Rechercher un dépôt"
+                    placeholder="Search depots"
                     value={depotQuery}
                     onValueChange={setDepotQuery}
                   />
                   <CommandList>
-                    <CommandEmpty>{depotSites.length === 0 ? "Aucun dépôt disponible" : "Aucun résultat"}</CommandEmpty>
-                    <CommandGroup heading="Dépôts">
+                    <CommandEmpty>{depotSites.length === 0 ? "No depot available" : "No results"}</CommandEmpty>
+                    <CommandGroup heading="Depots">
                       <ScrollArea className="max-h-64">
                         {depotSites
                           .filter((d) =>
@@ -424,10 +424,10 @@ function OptimizerForm({
 
           {mode === "saved" && (
             <div className="flex-1">
-              <Label className="mb-2 block">Lot sauvegardé</Label>
+              <Label className="mb-2 block">Saved order set</Label>
               <Select value={selectedSetId} onValueChange={setSelectedSetId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner..." />
+                  <SelectValue placeholder="Select..." />
                 </SelectTrigger>
                 <SelectContent>
                   {savedSets.map((set) => (
@@ -444,40 +444,40 @@ function OptimizerForm({
           <div className="flex-1">
             <Label className="mb-2 flex items-center gap-2">
               <Truck className="h-4 w-4 text-muted-foreground" aria-hidden />
-              Véhicules
+              Vehicles
             </Label>
             <Popover open={vehicleOpen} onOpenChange={setVehicleOpen}>
               <PopoverTrigger asChild>
                 <Button variant="outline" className="w-full justify-between">
                   {selectedVehicleIds.length > 0
-                    ? `${selectedVehicleIds.length} sélectionné(s)`
-                    : "Sélectionner…"}
+                    ? `${selectedVehicleIds.length} selected`
+                    : "Select…"}
                   <kbd className="ml-2 rounded border bg-muted px-1 text-[10px]">⌄</kbd>
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-[420px] p-0" align="start">
                 <div className="flex items-center justify-between px-2 py-2">
                   <div className="text-xs text-muted-foreground">
-                    {selectedVehicleIds.length} sélectionné(s)
+                    {selectedVehicleIds.length} selected
                   </div>
                   <div className="flex items-center gap-2">
                     <Button size="sm" variant="outline" onClick={selectAllVehicles}>
-                      Tout sélectionner
+                      Select all
                     </Button>
                     <Button size="sm" variant="outline" onClick={clearAllVehicles}>
-                      Tout retirer
+                      Remove all
                     </Button>
                   </div>
                 </div>
                 <Command>
                     <CommandInput
-                    placeholder="Rechercher (libellé, id)…"
+                    placeholder="Search (label, id)…"
                     value={vehicleQuery}
                     onValueChange={setVehicleQuery}
                   />
                   <CommandList>
-                    <CommandEmpty>Aucun véhicule</CommandEmpty>
-                    <CommandGroup heading="Véhicules">
+                    <CommandEmpty>No vehicles</CommandEmpty>
+                    <CommandGroup heading="Vehicles">
                       <ScrollArea className="max-h-64">
                         {filteredVehicles.map((v) => {
                           const id = v.id_vehicule;
@@ -509,16 +509,16 @@ function OptimizerForm({
           <div className="flex-1">
             <Label className="mb-2 flex items-center gap-2">
               <SlidersHorizontal className="h-4 w-4 text-muted-foreground" aria-hidden />
-              Stratégie
+              Strategy
             </Label>
             <Select value={arc} onValueChange={(v: Arc) => setArc(v)}>
               <SelectTrigger>
-                <SelectValue placeholder="Min Temps" />
+                <SelectValue placeholder="Min time" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="distance">Min Distance</SelectItem>
                 <SelectItem value="co2">Min CO₂</SelectItem>
-                <SelectItem value="duration">Min Temps</SelectItem>
+                <SelectItem value="duration">Min time</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -530,11 +530,11 @@ function OptimizerForm({
             </Label>
             <Select value={solver} onValueChange={(v: SolverMode) => setSolver(v)}>
                 <SelectTrigger>
-                <SelectValue placeholder="Équilibré" />
+                <SelectValue placeholder="Balanced" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="balanced">Équilibré</SelectItem>
-                <SelectItem value="fast">Rapide</SelectItem>
+                <SelectItem value="balanced">Balanced</SelectItem>
+                <SelectItem value="fast">Fast</SelectItem>
                 <SelectItem value="optimal">Optimal</SelectItem>
               </SelectContent>
             </Select>
@@ -543,7 +543,7 @@ function OptimizerForm({
           <div className="flex-1">
             <Label className="mb-2 flex items-center gap-2">
               <SlidersHorizontal className="h-4 w-4 text-muted-foreground" aria-hidden />
-              Retard/avance autorisé (minutes)
+              Allowed early/late tolerance (minutes)
             </Label>
             <Input
               type="number"
@@ -558,7 +558,7 @@ function OptimizerForm({
 
         <Button className="w-full mt-2 gap-2" onClick={handleRun}>
           <Rocket className="h-4 w-4" />
-          Lancer l’optimisation
+          Run optimization
         </Button>
       </CardContent>
     </Card>

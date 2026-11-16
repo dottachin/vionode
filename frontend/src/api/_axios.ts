@@ -25,7 +25,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       setAuthToken(null);
       try {
-        toast.error("Session expirée", { description: "Veuillez vous reconnecter." });
+        toast.error("Session expired", { description: "Please sign in again." });
       } catch {}
       const current = window.location.pathname + window.location.search;
       if (!current.startsWith("/login")) {

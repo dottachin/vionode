@@ -18,23 +18,23 @@ logger = logging.getLogger(__name__)
 
 # ---------------------- Original Enums (Preserved Exactly) ----------------------
 class EquipementEnum(str, Enum):
-    LOAD_BARS = "Barres d'arrimage"
-    E_TRACK = "Système E-Track"
-    RATCHET_STRAPS = "Sangles à cliquet"
-    CARGO_NETS = "Filets de chargement"
-    REFRIGERATION_UNIT = "Groupe frigorifique"
-    HAZARDOUS_MATERIAL_CONTAINER = "Contenants pour matières dangereuses"
-    AIR_SUSPENSION = "Suspension pneumatique"
-    SLIDING_SIDES_OR_ROOF = "Rideaux latéraux / toit coulissant"
+    LOAD_BARS = "Load bars"
+    E_TRACK = "E-Track system"
+    RATCHET_STRAPS = "Ratchet straps"
+    CARGO_NETS = "Cargo nets"
+    REFRIGERATION_UNIT = "Refrigeration unit"
+    HAZARDOUS_MATERIAL_CONTAINER = "Hazardous material containers"
+    AIR_SUSPENSION = "Air suspension"
+    SLIDING_SIDES_OR_ROOF = "Sliding sides / roof"
 
 
 class VehiculeTypeEnum(str, Enum):
-    TRACTEUR = "tracteur"
-    REMORQUE = "remorque"
-    SEMI_REMORQUE = "semi remorque"
-    VUL = "VUL"
-    VP = "VP"
-    PORTEUR = "porteur"
+    TRACTOR = "tractor"
+    TRAILER = "trailer"
+    SEMI_TRAILER = "semi-trailer"
+    VAN = "van"
+    CAR = "car"
+    RIGID_TRUCK = "rigid truck"
 
 
 class HazardousMaterialEnum(str, Enum):
@@ -59,16 +59,14 @@ class SiteCategoryEnum(str, Enum):
     DEPOT = "depot"
     VDEPOT = "virtual depot"
     VIRTUAL = "virtual site"
-    HUB = "hub"
-    ATELIER = "atelier"
-    COMPOSANT = "composant"
-    FOURNISSEUR = "fournisseur"
-    FACONNIER = "faconnier"
-    FOURNISSEUR_EXW = "fournisseur exw"
-    RECYCLAGE = "recyclage"
-    REPAIR = "repair"
-    FOURNISSEUR_ITALIEN = "fournisseur italien"
     CLIENT = "client"
+    SUPPLIER = "supplier"
+    WAREHOUSE = "warehouse"
+    HUB = "hub"
+    WORKSHOP = "workshop"
+    SUBCONTRACTOR = "subcontractor"
+    RECYCLING = "recycling"
+    REPAIR = "repair"
 
 
 # ---------------------- Enhanced Models with Pydantic V2 Validators ----------------------
@@ -146,25 +144,7 @@ class Site(BaseModel):
         if self.category == SiteCategoryEnum.VDEPOT:
             return 0
 
-        elif self.category in {
-            SiteCategoryEnum.FOURNISSEUR,
-            SiteCategoryEnum.VIRTUAL,
-            SiteCategoryEnum.ATELIER,
-            SiteCategoryEnum.COMPOSANT,
-            SiteCategoryEnum.FACONNIER,
-            SiteCategoryEnum.FOURNISSEUR_EXW,
-            SiteCategoryEnum.RECYCLAGE,
-            SiteCategoryEnum.REPAIR,
-            SiteCategoryEnum.FOURNISSEUR_ITALIEN,
-            SiteCategoryEnum.HUB,
-            SiteCategoryEnum.DEPOT,
-        }:
-            return 1800  # 30 minutes
-
-        elif self.category == SiteCategoryEnum.CLIENT:
-            return 1800  # Adjust if needed
-
-        return 1800  # Fallback default
+        return 1800  # 30 minutes for every other category
 
     def _default_time_window_for_category(self) -> TimeWindow:
         if self.category in {SiteCategoryEnum.DEPOT, SiteCategoryEnum.VDEPOT}:

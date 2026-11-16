@@ -39,8 +39,8 @@ type Props = {
 };
 const SURFACE_SCALE_FACTOR = 100;
 function OrderList({ orders, sites, onDelete }: Props) {
-  const nf0 = useMemo(() => new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }), []);
-  const nf2 = useMemo(() => new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 }), []);
+  const nf0 = useMemo(() => new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }), []);
+  const nf2 = useMemo(() => new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }), []);
 
   const siteMap = useMemo(() => {
     const m = new Map<string, Site>();
@@ -49,7 +49,7 @@ function OrderList({ orders, sites, onDelete }: Props) {
   }, [sites]);
 
   if (!orders.length) {
-    return <p className="text-muted-foreground">Aucune commande ajoutée.</p>;
+    return <p className="text-muted-foreground">No orders added.</p>;
   }
 
   return (
@@ -58,8 +58,8 @@ function OrderList({ orders, sites, onDelete }: Props) {
         const pickup = order.pickup_site_id ? siteMap.get(order.pickup_site_id) : undefined;
         const delivery = order.delivery_site_id ? siteMap.get(order.delivery_site_id) : undefined;
 
-        const pickupName = pickup?.name ?? "Site inconnu";
-        const deliveryName = delivery?.name ?? "Site inconnu";
+        const pickupName = pickup?.name ?? "Unknown site";
+        const deliveryName = delivery?.name ?? "Unknown site";
 
         const pickupSub =
           pickup ? `${getCity(pickup)}${pickup.address ? ` · ${pickup.address}` : ""}` : "—";
@@ -119,14 +119,14 @@ function OrderList({ orders, sites, onDelete }: Props) {
   {order.requires_refrigeration && (
     <Badge variant="secondary" className="inline-flex items-center gap-1">
       <ThermometerSnowflake className="h-3.5 w-3.5" aria-hidden />
-      Réfrigéré
+      Refrigerated
     </Badge>
   )}
 
   {Array.isArray(order.hazardous_types) && order.hazardous_types.length > 0 && (
     <Badge variant="destructive" className="inline-flex items-center gap-1">
       <Zap className="h-3.5 w-3.5" aria-hidden />
-      Dangereux
+      Hazardous
     </Badge>
   )}
 </div>
@@ -152,26 +152,26 @@ function DeleteButton({ orderId, onDelete }: { orderId: string; onDelete: (id: s
       <AlertDialogTrigger asChild>
         <Button size="sm" variant="destructive" className="gap-2">
           <Trash2 className="h-4 w-4" />
-          Supprimer
+          Delete
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           {/* ✅ no UUID shown in the dialog text */}
-          <AlertDialogTitle>Supprimer cette commande&nbsp;?</AlertDialogTitle>
+          <AlertDialogTitle>Delete this order?</AlertDialogTitle>
           <AlertDialogDescription>
-            Cette action est irréversible. La commande sera retirée de la liste.
+            This action cannot be undone. The order will be removed from the list.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Annuler</AlertDialogCancel>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={() => {
               onDelete(orderId);
               setOpen(false);
             }}
           >
-            Confirmer
+            Confirm
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
