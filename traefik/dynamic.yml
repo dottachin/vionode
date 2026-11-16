@@ -1,0 +1,24 @@
+http:
+  middlewares:
+    gzip:
+      compress: {}
+
+    security-headers:
+      headers:
+        stsSeconds: 31536000
+        stsIncludeSubdomains: true
+        stsPreload: true
+        contentTypeNosniff: true
+        frameDeny: true
+        referrerPolicy: no-referrer-when-downgrade
+        permissionsPolicy: geolocation=(), microphone=(), camera=(), fullscreen=(self)
+
+    strip-api:
+      stripPrefix:
+        prefixes: ["/api"]
+        forceSlash: false
+
+    strip-solver:
+      stripPrefix:
+        prefixes: ["/solver"]
+        forceSlash: false

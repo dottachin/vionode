@@ -1,0 +1,45 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "127.0.0.1:5173:80"    # only localhost
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+    env_file:
+      - ./backend/.env
+    environment:
+      - RODB_DATABASE_URL=postgresql://postgres:postgres@db:5432/rodb
+    depends_on:
+      - db
+    ports:
+      - "127.0.0.1:3333:8000"  # only localhost
+    restart: unless-stopped
+
+  solver:
+    build:
+      context: ./solver
+    env_file:
+      - ./solver/.env
+    environment:
+      - GUNICORN_WORKERS=2
+    ports:
+      - "127.0.0.1:8080:8000"  # only localhost
+    restart: unless-stopped
+
+  db:
+    image: postgres:17-alpine
+    environment:
+      - POSTGRES_DB=rodb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./db_init:/docker-entrypoint-initdb.d:ro
+    restart: unless-stopped
+
+volumes:
+  pg_data:

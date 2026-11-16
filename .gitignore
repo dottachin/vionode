@@ -1,0 +1,27 @@
+# Secrets
+.env
+.env.local
+*.local
+!.env.example
+
+# Dependencies / builds
+node_modules/
+dist/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Runtime data
+logs/
+*.log
+*.log.*
+here_matrix_cache/
+db_init/*.dump
+*.tmp
+
+# Editors / OS
+.idea/
+.DS_Store
