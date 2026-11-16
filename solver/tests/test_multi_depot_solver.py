@@ -10,8 +10,8 @@ from route_optimizer.models.schemas import (
     Site,
     SiteCategoryEnum,
     TimeWindow,
-    Vehicule,
-    VehiculeTypeEnum,
+    Vehicle,
+    VehicleTypeEnum,
 )
 from route_optimizer.solver.vrp_solver import VRPSolver
 
@@ -26,17 +26,17 @@ class VRPSolverMultiDepotTests(unittest.TestCase):
             max_daily_service_hours=12,
         )
 
-    def _build_vehicle(self, vehicle_id: str, depot_id: str, driver_id: str) -> Vehicule:
-        return Vehicule(
-            id_vehicule=vehicle_id,
+    def _build_vehicle(self, vehicle_id: str, depot_id: str, driver_id: str) -> Vehicle:
+        return Vehicle(
+            id=vehicle_id,
             weight=10,
             surface=10,
             length=2,
             height=2,
-            equipements=[],
-            type=VehiculeTypeEnum.RIGID_TRUCK,
-            carburant="Road diesel - B7",
-            conso=1,
+            equipment=[],
+            type=VehicleTypeEnum.RIGID_TRUCK,
+            fuel_type="Road diesel - B7",
+            fuel_consumption=1,
             driver_ids=[driver_id],
             max_distance_meters=1_000_000,
             depot_id=depot_id,

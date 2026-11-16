@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List, Dict, Iterable
 
-from app.database import get_rodb_session
+from app.database import get_db
 from app.models.milk_run import MilkRun
 from app.models.site import Site
 from app.schemas.milk_run import (
@@ -53,19 +53,19 @@ def _clean_map(d: Dict[str, str] | None) -> Dict[str, str]:
     return out
 
 @router.get("/milk-runs", response_model=List[MilkRunOut])
-def fetch_milk_runs(rodb: Session = Depends(get_rodb_session)):
-    return rodb.query(MilkRun).all()
+def fetch_milk_runs(db: Session = Depends(get_db)):
+    return db.query(MilkRun).all()
 
 @router.get("/milk-runs/{milk_run_id}", response_model=MilkRunOut)
-def get_milk_run(milk_run_id: str, rodb: Session = Depends(get_rodb_session)):
-    mr = rodb.query(MilkRun).get(milk_run_id)
+def get_milk_run(milk_run_id: int, db: Session = Depends(get_db)):
+    mr = db.query(MilkRun).get(milk_run_id)
     if not mr:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Milk run not found.")
     return mr
 
 @router.post("/milk-runs", response_model=MilkRunOut, status_code=status.HTTP_201_CREATED)
-def create_milk_run(payload: MilkRunCreate, rodb: Session = Depends(get_rodb_session)):
-    site_ids = _validate_site_ids(rodb, payload.site_ids)
+def create_milk_run(payload: MilkRunCreate, db: Session = Depends(get_db)):
+    site_ids = _validate_site_ids(db, payload.site_ids)
     mr = MilkRun(
         name=payload.name,
         site_ids=site_ids,
@@ -73,22 +73,22 @@ def create_milk_run(payload: MilkRunCreate, rodb: Session = Depends(get_rodb_ses
         vehicle_ids=[s for s in (payload.vehicle_ids or []) if str(s).strip()],
         site_vehicle_map=_clean_map(payload.site_vehicle_map),
     )
-    rodb.add(mr)
+    db.add(mr)
     try:
-        rodb.commit()
+        db.commit()
     except Exception:
-        rodb.rollback()
+        db.rollback()
         raise HTTPException(status_code=500, detail="Failed to create milk run.")
-    rodb.refresh(mr)
+    db.refresh(mr)
     return mr
 
 @router.put("/milk-runs/{milk_run_id}", response_model=MilkRunOut)
 def update_milk_run(
-    milk_run_id: str,
+    milk_run_id: int,
     payload: MilkRunUpdate,
-    rodb: Session = Depends(get_rodb_session),
+    db: Session = Depends(get_db),
 ):
-    mr = rodb.query(MilkRun).get(milk_run_id)
+    mr = db.query(MilkRun).get(milk_run_id)
     if not mr:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Milk run not found.")
 
@@ -96,7 +96,7 @@ def update_milk_run(
         mr.name = payload.name
 
     if payload.site_ids is not None:
-        mr.site_ids = _validate_site_ids(rodb, payload.site_ids)
+        mr.site_ids = _validate_site_ids(db, payload.site_ids)
 
     if payload.depot_id is not None:
         mr.depot_id = payload.depot_id
@@ -109,22 +109,22 @@ def update_milk_run(
         mr.site_vehicle_map = _clean_map(payload.site_vehicle_map)
 
     try:
-        rodb.commit()
+        db.commit()
     except Exception:
-        rodb.rollback()
+        db.rollback()
         raise HTTPException(status_code=500, detail="Failed to update milk run.")
-    rodb.refresh(mr)
+    db.refresh(mr)
     return mr
 
 @router.delete("/milk-runs/{milk_run_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_milk_run(milk_run_id: str, rodb: Session = Depends(get_rodb_session)):
-    mr = rodb.query(MilkRun).get(milk_run_id)
+def delete_milk_run(milk_run_id: int, db: Session = Depends(get_db)):
+    mr = db.query(MilkRun).get(milk_run_id)
     if not mr:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Milk run not found.")
-    rodb.delete(mr)
+    db.delete(mr)
     try:
-        rodb.commit()
+        db.commit()
     except Exception:
-        rodb.rollback()
+        db.rollback()
         raise HTTPException(status_code=500, detail="Failed to delete milk run.")
     return None

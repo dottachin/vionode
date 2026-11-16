@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 
-from app.database import get_rodb_session
+from app.database import get_db
 from app.models.order_set import OrderSet
 from app.models.order import Order
 
@@ -11,7 +11,7 @@ from app.schemas.order_set import OrderSetOut, OrderSetCreate, OrderSetUpdate
 router = APIRouter()
 
 @router.post("/order-sets", response_model=OrderSetOut)
-def save_order_set(data: OrderSetCreate, db: Session = Depends(get_rodb_session)):
+def save_order_set(data: OrderSetCreate, db: Session = Depends(get_db)):
     order_set = OrderSet(name=data.name)  # ID auto
     db.add(order_set)
     db.flush()  # ensures order_set.id is available
@@ -24,11 +24,11 @@ def save_order_set(data: OrderSetCreate, db: Session = Depends(get_rodb_session)
     return order_set
 
 @router.get("/order-sets", response_model=List[OrderSetOut])
-def fetch_order_sets(db: Session = Depends(get_rodb_session)):
+def fetch_order_sets(db: Session = Depends(get_db)):
     return db.query(OrderSet).all()
 
 @router.get("/order-sets/{id}", response_model=OrderSetOut)
-def load_order_set(id: int, db: Session = Depends(get_rodb_session)):
+def load_order_set(id: int, db: Session = Depends(get_db)):
     result = db.query(OrderSet).filter_by(id=id).first()
     if not result:
         raise HTTPException(status_code=404, detail="Order set not found")
@@ -36,7 +36,7 @@ def load_order_set(id: int, db: Session = Depends(get_rodb_session)):
 
 # ✏️ Update (rename and/or replace orders)
 @router.put("/order-sets/{id}", response_model=OrderSetOut)
-def update_order_set(id: int, data: OrderSetUpdate, db: Session = Depends(get_rodb_session)):
+def update_order_set(id: int, data: OrderSetUpdate, db: Session = Depends(get_db)):
     order_set = db.query(OrderSet).filter_by(id=id).first()
     if not order_set:
         raise HTTPException(status_code=404, detail="Order set not found")
@@ -56,7 +56,7 @@ def update_order_set(id: int, data: OrderSetUpdate, db: Session = Depends(get_ro
 
 # 🗑️ Delete
 @router.delete("/order-sets/{id}", status_code=204)
-def delete_order_set(id: int, db: Session = Depends(get_rodb_session)):
+def delete_order_set(id: int, db: Session = Depends(get_db)):
     order_set = db.query(OrderSet).filter_by(id=id).first()
     if not order_set:
         raise HTTPException(status_code=404, detail="Order set not found")

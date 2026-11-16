@@ -1,7 +1,7 @@
 from route_optimizer.logging_config import get_logger
 from time import perf_counter
 from typing import Dict, List
-from route_optimizer.models.schemas import EquipementEnum, Order, SolverResult
+from route_optimizer.models.schemas import EquipmentEnum, Order, SolverResult
 
 logger = get_logger(__name__)
 
@@ -31,12 +31,12 @@ class ResultProcessor:
 
             for v_idx, vehicle in enumerate(self.solver.vehicles):
                 logger.debug(
-                    f"Processing vehicle {v_idx + 1}/{len(self.solver.vehicles)}: {vehicle.id_vehicule}"
+                    f"Processing vehicle {v_idx + 1}/{len(self.solver.vehicles)}: {vehicle.id}"
                 )
 
                 index = routing.Start(v_idx)
                 route = {
-                    "vehicle_id": vehicle.id_vehicule,
+                    "vehicle_id": vehicle.id,
                     "driver_ids": vehicle.driver_ids,
                     "depot_id": getattr(vehicle, "depot_id", None),
                     "stops": [],
@@ -52,7 +52,7 @@ class ResultProcessor:
                     "used": False,
                 }
                 logger.debug(
-                    f"Initialized route structure for vehicle {vehicle.id_vehicule}"
+                    f"Initialized route structure for vehicle {vehicle.id}"
                 )
 
                 stop_count = 0
@@ -134,7 +134,7 @@ class ResultProcessor:
 
                 routes.append(route)
                 logger.info(
-                    f"Completed route for vehicle {vehicle.id_vehicule} with {stop_count} stops"
+                    f"Completed route for vehicle {vehicle.id} with {stop_count} stops"
                 )
 
             solve_time = perf_counter() - start_time
@@ -210,23 +210,23 @@ class ResultProcessor:
                 vehicle = next(
                     v
                     for v in self.solver.vehicles
-                    if v.id_vehicule == route["vehicle_id"]
+                    if v.id == route["vehicle_id"]
                 )
-                logger.debug(f"Processing vehicle {vehicle.id_vehicule}")
+                logger.debug(f"Processing vehicle {vehicle.id}")
 
                 if capacity_type == "surface":
                     capacity = vehicle.surface * self.solver.max_vehicle_utilization
                     used = route["total_surface"]
                 else:
                     capacity = self.solver.vehicle_weight_capacities[
-                        vehicle.id_vehicule
+                        vehicle.id
                     ]
                     used = route["total_weight"]
 
                 utilization = used / capacity if capacity > 0 else 0
                 total_utilization += utilization
                 logger.debug(
-                    f"Vehicle {vehicle.id_vehicule} {capacity_type} utilization: {utilization:.2%}"
+                    f"Vehicle {vehicle.id} {capacity_type} utilization: {utilization:.2%}"
                 )
 
             except Exception as e:
@@ -260,7 +260,7 @@ class ResultProcessor:
             print(f"Raw Solution:{solution}")
             for v_idx, vehicle in enumerate(self.solver.vehicles):
                 logger.debug(
-                    f"Processing assignments for vehicle {v_idx + 1}/{len(self.solver.vehicles)}: {vehicle.id_vehicule}"
+                    f"Processing assignments for vehicle {v_idx + 1}/{len(self.solver.vehicles)}: {vehicle.id}"
                 )
 
                 index = routing.Start(v_idx)
@@ -291,13 +291,13 @@ class ResultProcessor:
                         if assigned_vehicle == v_idx:
                             order_ids.add(order.order_id)
                             logger.debug(
-                                f"Order {order.order_id} assigned to vehicle {vehicle.id_vehicule}"
+                                f"Order {order.order_id} assigned to vehicle {vehicle.id}"
                             )
 
                     index = solution.Value(routing.NextVar(index))
 
                 if order_ids:
-                    assignments["vehicle_assignments"][vehicle.id_vehicule] = {
+                    assignments["vehicle_assignments"][vehicle.id] = {
                         "assigned_orders": sorted(order_ids),
                         "surface_used": max_surface,
                         "surface_capacity": int(
@@ -305,11 +305,11 @@ class ResultProcessor:
                         ),
                         "weight_used": max_weight,
                         "weight_capacity": int(
-                            self.solver.vehicle_weight_capacities[vehicle.id_vehicule]
+                            self.solver.vehicle_weight_capacities[vehicle.id]
                         ),
                     }
                     logger.info(
-                        f"Vehicle {vehicle.id_vehicule} assigned {len(order_ids)} orders"
+                        f"Vehicle {vehicle.id} assigned {len(order_ids)} orders"
                     )
 
             # Add unassigned orders with reasons
@@ -354,7 +354,7 @@ class ResultProcessor:
         missing_equipment = [
             req
             for req in order.required_utilities
-            if not any(req in v.equipements for v in self.solver.vehicles)
+            if not any(req in v.equipment for v in self.solver.vehicles)
         ]
         if missing_equipment:
             reasons.append(f"missing equipment: {', '.join(missing_equipment)}")
@@ -386,7 +386,7 @@ class ResultProcessor:
             order.hazardous_types
             and not reasons
             and not any(
-                EquipementEnum.HAZARDOUS_MATERIAL_CONTAINER in v.equipements
+                EquipmentEnum.HAZARDOUS_MATERIAL_CONTAINER in v.equipment
                 for v in self.solver.vehicles
             )
         ):

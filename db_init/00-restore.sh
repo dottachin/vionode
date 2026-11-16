@@ -3,7 +3,7 @@
 # Drop a file named db.dump (custom-format or plain SQL) in this folder to use it.
 set -e
 
-DB_NAME="${POSTGRES_DB:-rodb}"
+DB_NAME="${POSTGRES_DB:-vionode}"
 DUMP="/docker-entrypoint-initdb.d/db.dump"
 
 if [ ! -f "$DUMP" ]; then

@@ -15,7 +15,7 @@ if str(BASE_DIR) not in sys.path:
 from app.models.base import Base  # noqa: E402
 import app.models  # noqa: F401,E402 - import models to register metadata
 
-# Load environment variables (e.g., RODB_DATABASE_URL)
+# Load environment variables (e.g., DATABASE_URL)
 load_dotenv()
 
 config = context.config
@@ -25,7 +25,7 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # Prefer env var for DB URL; fallback to alembic.ini value
-database_url = os.getenv("RODB_DATABASE_URL")
+database_url = os.getenv("DATABASE_URL")
 if database_url:
     config.set_main_option("sqlalchemy.url", database_url)
 

@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 # ---------------------- Original Enums (Preserved Exactly) ----------------------
-class EquipementEnum(str, Enum):
+class EquipmentEnum(str, Enum):
     LOAD_BARS = "Load bars"
     E_TRACK = "E-Track system"
     RATCHET_STRAPS = "Ratchet straps"
@@ -28,7 +28,7 @@ class EquipementEnum(str, Enum):
     SLIDING_SIDES_OR_ROOF = "Sliding sides / roof"
 
 
-class VehiculeTypeEnum(str, Enum):
+class VehicleTypeEnum(str, Enum):
     TRACTOR = "tractor"
     TRAILER = "trailer"
     SEMI_TRAILER = "semi-trailer"
@@ -175,20 +175,20 @@ class Driver(BaseModel):
         return self
 
 
-class Vehicule(BaseModel):
+class Vehicle(BaseModel):
     """Enhanced vehicle model with capacity validation"""
 
     model_config = ConfigDict(extra="allow")
 
-    id_vehicule: str = Field(..., min_length=1, max_length=50)
+    id: str = Field(..., min_length=1, max_length=50)
     weight: Annotated[float, Field(..., gt=0, description="Max weight capacity in kg")]
     surface: Annotated[float, Field(..., gt=0, description="Floor surface in m²")]
     length: Annotated[float, Field(..., gt=0, description="Length in meters")]
     height: Annotated[float, Field(..., gt=0, description="Height in meters")]
-    equipements: List[EquipementEnum] = Field(default_factory=list)
-    type: VehiculeTypeEnum
-    carburant: str
-    conso: float
+    equipment: List[EquipmentEnum] = Field(default_factory=list)
+    type: VehicleTypeEnum
+    fuel_type: str
+    fuel_consumption: float
     driver_ids: List[str] = Field(default_factory=list)
     operational_cost: float = Field(0.0, ge=0)
     current_location: Optional[str] = None
@@ -211,7 +211,7 @@ class Vehicule(BaseModel):
 
     def can_handle_order(self, order: "Order") -> bool:
         """Check if vehicle can handle order requirements"""
-        equipment_ok = all(req in self.equipements for req in order.required_utilities)
+        equipment_ok = all(req in self.equipment for req in order.required_utilities)
         capacity_ok = order.floor <= self.surface
         return equipment_ok and capacity_ok
 
@@ -225,7 +225,7 @@ class Order(BaseModel):
     floor: Annotated[float, Field(..., description="Number of pallets")]
     weight: Annotated[float, Field(..., description="Order weight in kg")]
     hazardous_types: List[HazardousMaterialEnum] = Field(default_factory=list)
-    required_utilities: List[EquipementEnum] = Field(default_factory=list)
+    required_utilities: List[EquipmentEnum] = Field(default_factory=list)
     source: Site
     destination: Site
     time_windows: Optional[Dict[str, TimeWindow]] = None
@@ -253,7 +253,7 @@ class RoutingRequest(BaseModel):
 
     model_config = ConfigDict(extra="allow")
 
-    vehicles: List[Vehicule]
+    vehicles: List[Vehicle]
     drivers: List[Driver]
     # Orders are optional for multi-depot mode (site-level demands only)
     orders: List[Order] = Field(default_factory=list)
@@ -272,7 +272,7 @@ class RoutingRequest(BaseModel):
 
     @field_validator("vehicles")
     @classmethod
-    def validate_vehicles(cls, v: List[Vehicule]) -> List[Vehicule]:
+    def validate_vehicles(cls, v: List[Vehicle]) -> List[Vehicle]:
         if not v:
             raise ValueError("At least one vehicle is required")
         return v
@@ -284,7 +284,7 @@ class RoutingRequest(BaseModel):
             for driver_id in vehicle.driver_ids:
                 if driver_id not in driver_ids:
                     raise ValueError(
-                        f"Driver {driver_id} not found for vehicle {vehicle.id_vehicule}"
+                        f"Driver {driver_id} not found for vehicle {vehicle.id}"
                     )
         return self
 

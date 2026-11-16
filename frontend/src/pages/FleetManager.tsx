@@ -169,7 +169,7 @@ export default function FleetManager() {
                   drivers={drivers} // avoid refetch inside form
                   depots={depots}
                   onCreated={async (created?: Vehicle) => {
-                    if (created && created.id_vehicule) {
+                    if (created && created.id) {
                       setVehicles((prev) => [created, ...prev]);
                     }
                     toast.success("Vehicle created");
@@ -247,7 +247,7 @@ export default function FleetManager() {
               // optimistic update (compare as strings)
               setVehicles((prev) =>
                 prev.map((v) =>
-                  String(v.id_vehicule) === String(id) ? ({ ...v, ...updates } as Vehicle) : v
+                  String(v.id) === String(id) ? ({ ...v, ...updates } as Vehicle) : v
                 )
               );
 
@@ -267,7 +267,7 @@ export default function FleetManager() {
             }}
             onDelete={async (id) => {
               // optimistic remove
-              setVehicles((prev) => prev.filter((v) => String(v.id_vehicule) !== String(id)));
+              setVehicles((prev) => prev.filter((v) => String(v.id) !== String(id)));
               try {
                 await deleteVehicle(Number(id));
                 toast.success("Vehicle deleted");

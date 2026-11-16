@@ -15,8 +15,8 @@ from route_optimizer.models.schemas import (
     Site,
     SiteCategoryEnum,
     TimeWindow,
-    Vehicule,
-    VehiculeTypeEnum,
+    Vehicle,
+    VehicleTypeEnum,
 )
 from route_optimizer.solver.vrp_solver import VRPSolver
 
@@ -31,17 +31,17 @@ def _build_driver(driver_id: str) -> Driver:
     )
 
 
-def _build_vehicle(vehicle_id: str, depot_id: str, driver_id: str) -> Vehicule:
-    return Vehicule(
-        id_vehicule=vehicle_id,
+def _build_vehicle(vehicle_id: str, depot_id: str, driver_id: str) -> Vehicle:
+    return Vehicle(
+        id=vehicle_id,
         weight=10,
         surface=10,
         length=2,
         height=2,
-        equipements=[],
-        type=VehiculeTypeEnum.RIGID_TRUCK,
-        carburant="Road diesel - B7",
-        conso=1,
+        equipment=[],
+        type=VehicleTypeEnum.RIGID_TRUCK,
+        fuel_type="Road diesel - B7",
+        fuel_consumption=1,
         driver_ids=[driver_id],
         max_distance_meters=1_000_000,
         depot_id=depot_id,
@@ -87,7 +87,7 @@ def _print_routes(result) -> None:
 def _print_inputs(
     title: str,
     sites: List[Site],
-    vehicles: List[Vehicule],
+    vehicles: List[Vehicle],
     drivers: List[Driver],
     orders: List[Order],
     duration_matrix: np.ndarray,
@@ -95,7 +95,7 @@ def _print_inputs(
     print(f"\n=== {title} Inputs ===")
     print(f"Sites ({len(sites)}): {[s.id for s in sites]}")
     print(f"Depots: {[s.id for s in sites if s.category == SiteCategoryEnum.DEPOT]}")
-    print(f"Vehicles: {[v.id_vehicule for v in vehicles]}")
+    print(f"Vehicles: {[v.id for v in vehicles]}")
     print(f"Drivers: {[d.id for d in drivers]}")
     print(f"Orders: {[o.order_id for o in orders] or '[]'}")
     print(f"Duration matrix shape: {duration_matrix.shape}")

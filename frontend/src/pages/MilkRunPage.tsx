@@ -86,7 +86,7 @@ const toMetersFromKm = (km: unknown) => {
 };
 
 /** vehicle id helper (robust across shapes) */
-const vehicleIdOf = (v: any) => String(v?.id_vehicule ?? v?.id ?? v?.vehicle_id ?? v ?? "");
+const vehicleIdOf = (v: any) => String(v?.id ?? v?.vehicle_id ?? v ?? "");
 
 /** shallow equality helpers */
 function shallowEqualArr(a: string[], b: string[]) {
@@ -192,7 +192,7 @@ export default function MilkRunPage() {
         // Normalize vehicle IDs to string once here
         const normalizedVehicles = (vehiclesRes as any[]).map((v) => ({
           ...v,
-          id_vehicule: String(v.id_vehicule ?? v.id ?? v.vehicle_id),
+          id: String(v.id ?? v.vehicle_id),
         }));
         setVehicles(normalizedVehicles as Vehicle[]);
 
@@ -350,7 +350,7 @@ export default function MilkRunPage() {
   const optVehicles = useMemo(() => {
     if (!optVehicleIds.length) return [] as Vehicle[];
     const set = new Set(optVehicleIds);
-    return vehicles.filter((v: any) => set.has(String((v as any).id_vehicule ?? (v as any).id ?? v)));
+    return vehicles.filter((v: any) => set.has(String((v as any).id ?? v)));
   }, [vehicles, optVehicleIds]);
 
   /** Vehicles for MANUAL: from per-site mapping ONLY */
@@ -366,7 +366,7 @@ export default function MilkRunPage() {
   const manualVehicles = useMemo(() => {
     if (!manualVehicleIds.length) return [] as Vehicle[];
     const set = new Set(manualVehicleIds);
-    return vehicles.filter((v: any) => set.has(String((v as any).id_vehicule ?? (v as any).id ?? v)));
+    return vehicles.filter((v: any) => set.has(String((v as any).id ?? v)));
   }, [vehicles, manualVehicleIds]);
 
   const buildRawById = (list: Vehicle[]) => {

@@ -39,7 +39,7 @@ export function sanitizeSite(site: any) {
 
 /**
  * Vehicles sanitizer
- * - Keeps canonical id as `id_vehicule` (string)
+ * - Keeps canonical id as `id` (string)
  * - Normalizes driver_ids to strings
  * - Defaults length/height to 1 if missing/non-numeric
  * - Converts `max_distance` (km) -> `max_distance_meters` (meters)
@@ -51,12 +51,11 @@ export function sanitizeVehicles(vs: any[]): any[] {
     const {
       max_distance, // km; read for conversion, do not forward
       driver_ids = [],
-      id_vehicule,
       id,
       vehicle_id,
       length,
       height,
-      equipements,
+      equipment,
       depot_id,
       fixed_cost,
       ...rest
@@ -68,22 +67,22 @@ export function sanitizeVehicles(vs: any[]): any[] {
       v.max_distance_meters ??
       (Number.isFinite(km) && km > 0 ? Math.round(km * 1000) : undefined);
 
-    const normalizedEquipements =
-      Array.isArray(equipements)
-        ? (equipements as any[]).filter(Boolean).map((x) => String(x))
-        : typeof equipements === "string"
-        ? equipements.split(",").map((s) => s.trim()).filter(Boolean)
+    const normalizedEquipment =
+      Array.isArray(equipment)
+        ? (equipment as any[]).filter(Boolean).map((x) => String(x))
+        : typeof equipment === "string"
+        ? equipment.split(",").map((s) => s.trim()).filter(Boolean)
         : [];
 
     return {
       ...rest,
       ...(typeof derivedMeters === "number" ? { max_distance_meters: derivedMeters } : {}),
-      id_vehicule: String(id_vehicule ?? id ?? vehicle_id ?? ""),
+      id: String(id ?? vehicle_id ?? ""),
       driver_ids: (driver_ids as any[]).map((d: any) => String(d)),
       length: typeof length === "number" ? length : 1,
       height: typeof height === "number" ? height : 1,
       depot_id: depot_id != null ? String(depot_id) : undefined,
-      equipements: normalizedEquipements,
+      equipment: normalizedEquipment,
       fixed_cost:
         typeof fixed_cost === "number"
           ? fixed_cost

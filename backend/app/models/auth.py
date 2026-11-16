@@ -1,11 +1,10 @@
-# app/models/user.py
 from __future__ import annotations
 import uuid
 from datetime import datetime, timezone
 from typing import List
 
 from sqlalchemy import (
-    String, Boolean, DateTime, ForeignKey, Table, Column, UniqueConstraint, Index
+    String, Boolean, DateTime, ForeignKey, Table, Column
 )
 from sqlalchemy.orm import  Mapped, mapped_column, relationship
 from app.models.base import Base
@@ -24,7 +23,6 @@ user_roles = Table(
     Base.metadata,
     Column("user_id", String(36), ForeignKey("users.id", ondelete="CASCADE"), primary_key=True),
     Column("role_id", String(50), ForeignKey("roles.name", ondelete="CASCADE"), primary_key=True),
-    UniqueConstraint("user_id", "role_id", name="uq_user_role"),
 )
 
 class Role(Base):
@@ -52,5 +50,3 @@ class User(TimestampMixin, Base):
         lazy="joined",
     )
 
-# Helpful indexes (optional)
-Index("username_unique", User.username, unique=True)

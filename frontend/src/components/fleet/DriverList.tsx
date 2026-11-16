@@ -29,12 +29,12 @@ type Props = {
 
 const DriverList = ({ drivers, vehicles, onUpdate, onDelete }: Props) => {
   const vehicleMapByDriver = useMemo(() => {
-    const m = new Map<string, Array<Pick<Vehicle, "id_vehicule" | "type">>>();
+    const m = new Map<string, Array<Pick<Vehicle, "id" | "type">>>();
     for (const v of vehicles ?? []) {
       for (const dId of (v.driver_ids as any[] ?? [])) {
         const key = String(dId);
         if (!m.has(key)) m.set(key, []);
-        m.get(key)!.push({ id_vehicule: v.id_vehicule, type: v.type });
+        m.get(key)!.push({ id: v.id, type: v.type });
       }
     }
     return m;
@@ -94,8 +94,8 @@ const DriverList = ({ drivers, vehicles, onUpdate, onDelete }: Props) => {
                       {assigned.length ? (
                         <div className="flex flex-wrap gap-1">
                           {assigned.map((v) => (
-                            <Badge key={`drv-${key}-veh-${String(v.id_vehicule)}`} variant="secondary">
-                              {`VEH-${String(v.id_vehicule)}`}{v.type ? ` · ${v.type}` : ""}
+                            <Badge key={`drv-${key}-veh-${String(v.id)}`} variant="secondary">
+                              {`VEH-${String(v.id)}`}{v.type ? ` · ${v.type}` : ""}
                             </Badge>
                           ))}
                         </div>

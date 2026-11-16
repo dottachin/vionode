@@ -1,11 +1,11 @@
 from typing import List
 from route_optimizer.logging_config import get_logger
-from route_optimizer.models.schemas import EquipementEnum, Order, SiteCategoryEnum
+from route_optimizer.models.schemas import EquipmentEnum, Order, SiteCategoryEnum
 
 logger = get_logger(__name__)
 
 
-# --- Same factors as in manual stats (keys must match vehicle.carburant exactly) ---
+# --- Same factors as in manual stats (keys must match vehicle.fuel_type exactly) ---
 EMISSION_FACTORS_KG_PER_L = {
     "Bioethanol - ED95": 0.85,
     "Petrol - Unleaded (95, E10, 98)": 2.70,
@@ -22,25 +22,25 @@ EMISSION_FACTORS_KG_PER_L = {
 def _vehicle_emission_rate_g_per_m(vehicle) -> float:
     """
     CO₂ rate in grams per meter using the SAME formula as manual stats:
-      rate_g_per_m = conso(L/km) * factor(kg/L)
+      rate_g_per_m = fuel_consumption(L/km) * factor(kg/L)
     (Numerically equals g/m because kg/km * 1000(g/kg) / 1000(m/km) = 1)
     """
     try:
-        conso = float(getattr(vehicle, "conso", 0) or 0)  # L/km
+        fuel_consumption = float(getattr(vehicle, "fuel_consumption", 0) or 0)  # L/km
     except Exception:
-        conso = 0.0
+        fuel_consumption = 0.0
 
-    fuel = getattr(vehicle, "carburant", None)
+    fuel = getattr(vehicle, "fuel_type", None)
 
-    if conso <= 0:
-        logger.warning("Vehicle.conso (L/km) missing or invalid; CO₂ rate set to 0")
+    if fuel_consumption <= 0:
+        logger.warning("Vehicle.fuel_consumption (L/km) missing or invalid; CO₂ rate set to 0")
         return 0.0
     if not fuel or fuel not in EMISSION_FACTORS_KG_PER_L:
-        logger.warning(f"Vehicle.carburant '{fuel}' not in emission factors; CO₂ rate set to 0")
+        logger.warning(f"Vehicle.fuel_type '{fuel}' not in emission factors; CO₂ rate set to 0")
         return 0.0
 
     factor_kg_per_L = float(EMISSION_FACTORS_KG_PER_L[fuel])  # kg/L
-    rate_g_per_m = conso * factor_kg_per_L  # g/m numerically
+    rate_g_per_m = fuel_consumption * factor_kg_per_L  # g/m numerically
     return max(0.0, float(rate_g_per_m))
 
 
@@ -201,7 +201,7 @@ class ConstraintManager:
             logger.debug(f"Registered weight callback with index: {weight_cb_idx}")
 
             weight_capacities = [
-                int(self.solver.vehicle_weight_capacities[v.id_vehicule])
+                int(self.solver.vehicle_weight_capacities[v.id])
                 for v in self.solver.vehicles
             ]
             logger.debug(f"Weight capacities: {weight_capacities}")
@@ -335,11 +335,11 @@ class ConstraintManager:
         )
 
         for i, vehicle in enumerate(self.solver.vehicles):
-            logger.debug(f"Checking vehicle {i}: {vehicle.id_vehicule}")
+            logger.debug(f"Checking vehicle {i}: {vehicle.id}")
 
             # Check utility requirements
             missing_utilities = [
-                req for req in order.required_utilities if req not in vehicle.equipements
+                req for req in order.required_utilities if req not in vehicle.equipment
             ]
             if missing_utilities:
                 logger.debug(f"Vehicle {i} missing utilities: {missing_utilities}")
@@ -352,7 +352,7 @@ class ConstraintManager:
                 continue
 
             # Check weight capacity
-            vehicle_weight_cap = self.solver.vehicle_weight_capacities[vehicle.id_vehicule]
+            vehicle_weight_cap = self.solver.vehicle_weight_capacities[vehicle.id]
             if order.weight and order.weight > vehicle_weight_cap:
                 logger.debug(
                     f"Vehicle {i} insufficient weight capacity: {vehicle_weight_cap} < {order.weight}"
@@ -360,7 +360,7 @@ class ConstraintManager:
                 continue
 
             # Check hazardous materials
-            if order.hazardous_types and EquipementEnum.HAZARDOUS_MATERIAL_CONTAINER not in vehicle.equipements:
+            if order.hazardous_types and EquipmentEnum.HAZARDOUS_MATERIAL_CONTAINER not in vehicle.equipment:
                 logger.debug(f"Vehicle {i} lacks hazardous materials containers")
                 continue
 
@@ -430,7 +430,7 @@ class ConstraintManager:
                 time_dim.CumulVar(end_index).SetRange(depot_start, depot_end)
 
                 # Per-vehicle max route duration
-                max_sec = self.solver.max_route_seconds[vehicle.id_vehicule]
+                max_sec = self.solver.max_route_seconds[vehicle.id]
                 routing.solver().Add(
                     time_dim.CumulVar(end_index) - time_dim.CumulVar(start_index) <= max_sec
                 )
@@ -477,7 +477,7 @@ class ConstraintManager:
                 node_visit_transits.append(service_time)
 
             for vehicle_idx, vehicle in enumerate(self.solver.vehicles):
-                vehicle_id = vehicle.id_vehicule
+                vehicle_id = vehicle.id
                 max_route_time = self.solver.max_route_seconds.get(vehicle_id, 12 * 3600)
 
                 logger.debug(f"Vehicle {vehicle_id} max route time: {max_route_time} seconds")

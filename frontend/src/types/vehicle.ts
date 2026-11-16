@@ -7,20 +7,20 @@ export interface Driver {
 }
 
 export interface Vehicle {
-  id_vehicule: string;
+  id: string;
   label?: string;
   depot_id?: string;
   weight: number;
   surface: number;
   length?: number;
   height?: number;
-  equipements?: string[];
+  equipment?: string[];
   type: string;
   emission_rate?: number;
   max_distance?: number;           // km (UI convenience)
   max_distance_meters?: number;    // meters (solver)
   fixed_cost?: number;
   driver_ids: Array<string | number>;
-  conso: number;
-  carburant: string;
+  fuel_consumption: number;
+  fuel_type: string;
 }

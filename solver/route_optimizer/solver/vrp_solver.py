@@ -10,7 +10,7 @@ from route_optimizer.models.schemas import (
     Order,
     Site,
     SiteCategoryEnum,
-    Vehicule,
+    Vehicle,
 )
 from .constraints import ConstraintManager
 from .callbacks import CallbackManager
@@ -24,7 +24,7 @@ class VRPSolver:
         self,
         sites: List[Site],
         orders: Optional[List[Order]],
-        vehicles: List[Vehicule],
+        vehicles: List[Vehicle],
         drivers: List[Driver],
         duration_matrix: np.ndarray,
         distance_matrix: np.ndarray,
@@ -188,29 +188,29 @@ class VRPSolver:
         return orders
 
     def _validate_vehicles(
-        self, vehicles: List[Vehicule], drivers: List[Driver]
-    ) -> List[Vehicule]:
+        self, vehicles: List[Vehicle], drivers: List[Driver]
+    ) -> List[Vehicle]:
         """Validate vehicles and check driver references."""
         if not vehicles:
             raise ValueError("No vehicles provided")
 
         valid_driver_ids = {driver.id for driver in drivers}
-        filtered: List[Vehicule] = []
+        filtered: List[Vehicle] = []
 
         for vehicle in vehicles:
             if not vehicle.driver_ids:
                 raise ValueError(
-                    f"Vehicle {vehicle.id_vehicule} has no drivers assigned"
+                    f"Vehicle {vehicle.id} has no drivers assigned"
                 )
             if not any(did in valid_driver_ids for did in vehicle.driver_ids):
-                raise ValueError(f"Vehicle {vehicle.id_vehicule} has no valid drivers")
+                raise ValueError(f"Vehicle {vehicle.id} has no valid drivers")
             # Default depot assignment for backward compatibility
             if not getattr(vehicle, "depot_id", None):
                 vehicle.depot_id = self.depot_ids[0]
             elif vehicle.depot_id not in self.depot_ids:
                 logger.warning(
                     "Vehicle %s skipped: depot_id %s not in provided depots %s",
-                    vehicle.id_vehicule,
+                    vehicle.id,
                     vehicle.depot_id,
                     self.depot_ids,
                 )
@@ -270,24 +270,24 @@ class VRPSolver:
 
         # Calculate default route times based on driver availability
         return {
-            # v.id_vehicule: int(3600 * self._get_driver(v).max_daily_service_hours)
-            v.id_vehicule: int(3600 * 168)
+            # v.id: int(3600 * self._get_driver(v).max_daily_service_hours)
+            v.id: int(3600 * 168)
             for v in self.vehicles
         }
 
     def _calculate_weight_capacities(self) -> Dict[str, float]:
         """Calculate vehicle weight capacities with utilization factor."""
         return {
-            v.id_vehicule: v.weight * self.max_vehicle_utilization
+            v.id: v.weight * self.max_vehicle_utilization
             for v in self.vehicles
         }
 
-    def _get_driver(self, vehicle: Vehicule) -> Driver:
+    def _get_driver(self, vehicle: Vehicle) -> Driver:
         """Get the primary driver for a vehicle."""
         for driver in self.drivers:
             if driver.id in vehicle.driver_ids:
                 return driver
-        raise ValueError(f"No valid driver for vehicle {vehicle.id_vehicule}")
+        raise ValueError(f"No valid driver for vehicle {vehicle.id}")
 
     def _precompute_node_demands(self) -> Dict[str, Dict[float, float]]:
         """Precompute surface and weight demands for each node with validation."""
@@ -366,7 +366,7 @@ class VRPSolver:
             end.hour * 3600 + end.minute * 60 + end.second,
         )
 
-    def _get_fixed_cost_for_vehicle(self, vehicle: Vehicule) -> int:
+    def _get_fixed_cost_for_vehicle(self, vehicle: Vehicle) -> int:
         """Resolve fixed cost used to minimize the number of active milk runs."""
         if self.fixed_cost_per_route is not None:
             return int(self.fixed_cost_per_route)
@@ -487,7 +487,7 @@ class VRPSolver:
         logger.info("Estimating vehicle-to-node sequences from order data")
 
         vehicle_to_nodes: Dict[str, List[int]] = {
-            v.id_vehicule: [] for v in self.vehicles
+            v.id: [] for v in self.vehicles
         }
 
         for order in self.orders:
@@ -499,7 +499,7 @@ class VRPSolver:
 
             # Assign to the first compatible vehicle as a heuristic
             assigned_vehicle_idx = compatible_vehicles[0]
-            vehicle_id = self.vehicles[assigned_vehicle_idx].id_vehicule
+            vehicle_id = self.vehicles[assigned_vehicle_idx].id
 
             pickup_idx = self.site_id_to_index[order.source.id]
             delivery_idx = self.site_id_to_index[order.destination.id]

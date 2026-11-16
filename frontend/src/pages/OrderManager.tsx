@@ -371,7 +371,7 @@ export default function OrderManager() {
 
       const vehicleIdsUsed =
         (fixedInput.vehicles || [])
-          .map((v: any) => v?.id_vehicule ?? v?.id ?? String(v))
+          .map((v: any) => v?.id ?? String(v))
           .filter((x: any) => typeof x === "string" && x.length > 0);
 
       setLastDepotId(depot_id);
@@ -416,7 +416,7 @@ export default function OrderManager() {
     const vehicle_ids =
       (lastVehicleIds && lastVehicleIds.length > 0)
         ? lastVehicleIds
-        : (vehicles || []).map((v: any) => v?.id_vehicule).filter(Boolean);
+        : (vehicles || []).map((v: any) => v?.id).filter(Boolean);
 
     const payload: OptimizationCreate = {
       name: name?.trim() || null,

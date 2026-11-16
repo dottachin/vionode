@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
 
-from app.database import get_rodb_session
+from app.database import get_db
 from app.models.global_optimization import GlobalOptimization
 from app.schemas.global_optimization import (
     GlobalOptimizationCreate,
@@ -32,7 +32,7 @@ def _clean_ids(values: List[str] | None) -> List[str]:
 @router.post("", response_model=GlobalOptimizationRead, status_code=status.HTTP_201_CREATED)
 def create_global_optimization(
     payload: GlobalOptimizationCreate,
-    db: Session = Depends(get_rodb_session),
+    db: Session = Depends(get_db),
 ):
     depot_ids = _clean_ids(payload.depot_ids)
     site_ids = _clean_ids(payload.site_ids)
@@ -82,7 +82,7 @@ def list_global_optimizations(
     result_id: Optional[str] = Query(default=None),
     limit: int = Query(default=50, ge=1, le=500),
     offset: int = Query(default=0, ge=0),
-    db: Session = Depends(get_rodb_session),
+    db: Session = Depends(get_db),
 ):
     stmt = select(GlobalOptimization)
 
@@ -107,7 +107,7 @@ def list_global_optimizations(
 @router.get("/{global_opt_id}", response_model=GlobalOptimizationRead)
 def get_global_optimization(
     global_opt_id: int,
-    db: Session = Depends(get_rodb_session),
+    db: Session = Depends(get_db),
 ):
     obj = db.get(GlobalOptimization, global_opt_id)
     if not obj:
@@ -119,7 +119,7 @@ def get_global_optimization(
 def update_global_optimization(
     global_opt_id: int,
     payload: GlobalOptimizationUpdate,
-    db: Session = Depends(get_rodb_session),
+    db: Session = Depends(get_db),
 ):
     obj = db.get(GlobalOptimization, global_opt_id)
     if not obj:
@@ -195,7 +195,7 @@ def update_global_optimization(
 @router.delete("/{global_opt_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_global_optimization(
     global_opt_id: int,
-    db: Session = Depends(get_rodb_session),
+    db: Session = Depends(get_db),
 ):
     obj = db.get(GlobalOptimization, global_opt_id)
     if not obj:

@@ -181,7 +181,7 @@ export default function OptimizationGlobal() {
         const [s, rawV, d] = await Promise.all([fetchSites(), fetchVehicles(), fetchDrivers()]);
         const normalizedVehicles = (rawV as any[]).map((veh) => ({
           ...veh,
-          id_vehicule: String(veh?.id_vehicule ?? veh?.id ?? veh?.vehicle_id ?? ""),
+          id: String(veh?.id ?? veh?.vehicle_id ?? ""),
           depot_id: veh?.depot_id ?? veh?.depotId ?? null,
         })) as Vehicle[];
 
@@ -190,7 +190,7 @@ export default function OptimizationGlobal() {
         setDrivers(d);
         const defaultDepots = s.filter((site) => normalizeCategory(site.category) === "depot").map((site) => site.id);
         setSelectedDepotIds(defaultDepots.slice(0, 1).map((id) => String(id)));
-        setSelectedVehicleIds(normalizedVehicles.map((veh: any) => veh.id_vehicule));
+        setSelectedVehicleIds(normalizedVehicles.map((veh: any) => veh.id));
       } catch (e) {
         console.error(e);
         toast.error("Loading failed", { description: "Could not load sites, vehicles or drivers." });
@@ -255,11 +255,11 @@ export default function OptimizationGlobal() {
     }
     if (!q) return base;
     return base.filter((v) => {
-      const label = String((v as any).label ?? v.id_vehicule ?? "").toLowerCase();
+      const label = String((v as any).label ?? v.id ?? "").toLowerCase();
       const depotLabel = v.depot_id ? siteMap.get(String(v.depot_id))?.name ?? String(v.depot_id) : "";
       return (
         label.includes(q) ||
-        String(v.id_vehicule).toLowerCase().includes(q) ||
+        String(v.id).toLowerCase().includes(q) ||
         depotLabel.toLowerCase().includes(q) ||
         (v.type ?? "").toLowerCase().includes(q)
       );
@@ -302,7 +302,7 @@ export default function OptimizationGlobal() {
 
   const selectAllDepots = () => setSelectedDepotIds(depots.map((d) => String(d.id)));
   const selectAllSites = () => setSelectedSiteIds(clientSites.map((s) => String(s.id)));
-  const selectAllVehicles = () => setSelectedVehicleIds(vehicles.map((v) => v.id_vehicule));
+  const selectAllVehicles = () => setSelectedVehicleIds(vehicles.map((v) => v.id));
   const selectAllDepotsInCountry = () => {
     if (!countryFilter) {
       selectAllDepots();
@@ -327,7 +327,7 @@ export default function OptimizationGlobal() {
     const allowedDepots = new Set(depots.map((d) => String(d.id)));
     const ids = vehicles
       .filter((v) => !v.depot_id || allowedDepots.has(String(v.depot_id)))
-      .map((v) => v.id_vehicule);
+      .map((v) => v.id);
     setSelectedVehicleIds(ids);
   };
   const clearSelections = () => {
@@ -436,7 +436,7 @@ export default function OptimizationGlobal() {
         demand_weight: 0,
       }));
 
-    const selectedVehicles = vehicles.filter((v) => selectedVehicleIds.includes(v.id_vehicule));
+    const selectedVehicles = vehicles.filter((v) => selectedVehicleIds.includes(v.id));
 
     const driverIds = new Set<string>();
     for (const v of selectedVehicles) (v.driver_ids || []).forEach((id) => driverIds.add(String(id)));
@@ -981,12 +981,12 @@ export default function OptimizationGlobal() {
                             const depotLabel = v.depot_id
                               ? siteMap.get(String(v.depot_id))?.name ?? String(v.depot_id)
                               : "No depot";
-                            const label = (v as any).label || v.id_vehicule;
-                            const selected = selectedVehicleIds.includes(v.id_vehicule);
+                            const label = (v as any).label || v.id;
+                            const selected = selectedVehicleIds.includes(v.id);
                             return (
                               <CommandItem
-                                key={v.id_vehicule}
-                                onSelect={() => toggleIdInList(v.id_vehicule, selectedVehicleIds, setSelectedVehicleIds)}
+                                key={v.id}
+                                onSelect={() => toggleIdInList(v.id, selectedVehicleIds, setSelectedVehicleIds)}
                                 className="gap-2"
                               >
                                 <Check className={`h-4 w-4 ${selected ? "opacity-100" : "opacity-0"}`} aria-hidden />
@@ -1010,7 +1010,7 @@ export default function OptimizationGlobal() {
                   <Text className="text-xs text-text-secondary">No vehicle selected.</Text>
                 ) : (
                   selectedVehicleIds.map((id) => {
-                    const veh = vehicles.find((v) => v.id_vehicule === id);
+                    const veh = vehicles.find((v) => v.id === id);
                     const depotLabel = veh?.depot_id
                       ? siteMap.get(String(veh.depot_id))?.name ?? String(veh.depot_id)
                       : "No depot";

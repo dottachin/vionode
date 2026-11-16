@@ -5,8 +5,8 @@ import os, jwt, bcrypt
 
 ALGO = "HS256"
 ACCESS_TTL_MIN = 600
-ISS = "route-optimizer"
-AUD = "route-optimizer-web"
+ISS = "vionode"
+AUD = "vionode-web"
 SECRET = os.getenv("JWT_SECRET", "change_me")
 
 def hash_password(pw: str) -> str:

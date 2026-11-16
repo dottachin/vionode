@@ -12,7 +12,7 @@ from app.schemas.optimization import (
     OptimizationRead,
     OptimizationUpdate,
 )
-from app.database import get_rodb_session
+from app.database import get_db
 
 router = APIRouter(prefix="/optimizations", tags=["optimizations"])
 
@@ -20,7 +20,7 @@ router = APIRouter(prefix="/optimizations", tags=["optimizations"])
 @router.post("", response_model=OptimizationRead, status_code=status.HTTP_201_CREATED)
 def create_optimization(
     payload: OptimizationCreate,
-    db: Session = Depends(get_rodb_session),
+    db: Session = Depends(get_db),
 ):
     # Validate references if provided (allow zero or one link)
     if payload.milk_run_id:
@@ -63,7 +63,7 @@ def list_optimizations(
     order_set_id: Optional[int] = Query(default=None),
     limit: int = Query(default=50, ge=1, le=500),
     offset: int = Query(default=0, ge=0),
-    db: Session = Depends(get_rodb_session),
+    db: Session = Depends(get_db),
 ):
     stmt = select(Optimization)
 
@@ -81,7 +81,7 @@ def list_optimizations(
 @router.get("/{opt_id}", response_model=OptimizationRead)
 def get_optimization(
     opt_id: int = Path(..., ge=1),
-    db: Session = Depends(get_rodb_session),
+    db: Session = Depends(get_db),
 ):
     obj = db.get(Optimization, opt_id)
     if not obj:
@@ -93,7 +93,7 @@ def get_optimization(
 def update_optimization(
     opt_id: int = Path(..., ge=1),
     payload: OptimizationUpdate = ...,
-    db: Session = Depends(get_rodb_session),
+    db: Session = Depends(get_db),
 ):
     obj = db.get(Optimization, opt_id)
     if not obj:
@@ -156,7 +156,7 @@ def update_optimization(
 @router.delete("/{opt_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_optimization(
     opt_id: int = Path(..., ge=1),
-    db: Session = Depends(get_rodb_session),
+    db: Session = Depends(get_db),
 ):
     obj = db.get(Optimization, opt_id)
     if not obj:

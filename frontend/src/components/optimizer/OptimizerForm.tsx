@@ -109,14 +109,14 @@ function OptimizerForm({
   const [vehicleQuery, setVehicleQuery] = useState("");
   const [vehicleOpen, setVehicleOpen] = useState(false);
   const [selectedVehicleIds, setSelectedVehicleIds] = useState<string[]>(
-    () => vehicles.map((v) => v.id_vehicule) // preselect all
+    () => vehicles.map((v) => v.id) // preselect all
   );
 
   useEffect(() => {
     setSelectedVehicleIds((prev) => {
-      const allowed = new Set(vehicles.map((v) => v.id_vehicule));
+      const allowed = new Set(vehicles.map((v) => v.id));
       const next = prev.filter((id) => allowed.has(id));
-      return next.length ? next : vehicles.map((v) => v.id_vehicule);
+      return next.length ? next : vehicles.map((v) => v.id);
     });
   }, [vehicles]);
 
@@ -127,7 +127,7 @@ function OptimizerForm({
   };
 
   const selectAllVehicles = () =>
-    setSelectedVehicleIds(vehicles.map((v) => v.id_vehicule));
+    setSelectedVehicleIds(vehicles.map((v) => v.id));
   const clearAllVehicles = () => setSelectedVehicleIds([]);
 
   const siteById = useMemo(() => {
@@ -273,7 +273,7 @@ function OptimizerForm({
 
     // Vehicles BEFORE scaling (keeps original array intact)
     const selectedVehiclesRaw = vehicles.filter((v) =>
-      selectedVehicleIds.includes(v.id_vehicule)
+      selectedVehicleIds.includes(v.id)
     );
 
     // Derive drivers from selected vehicles
@@ -316,8 +316,8 @@ function OptimizerForm({
     const q = vehicleQuery.trim().toLowerCase();
     if (!q) return vehicles;
     return vehicles.filter((v) => {
-      const label = String((v as any).label ?? v.id_vehicule ?? "").toLowerCase();
-      const id = String(v.id_vehicule ?? "").toLowerCase();
+      const label = String((v as any).label ?? v.id ?? "").toLowerCase();
+      const id = String(v.id ?? "").toLowerCase();
       return label.includes(q) || id.includes(q);
     });
   }, [vehicles, vehicleQuery]);
@@ -480,7 +480,7 @@ function OptimizerForm({
                     <CommandGroup heading="Vehicles">
                       <ScrollArea className="max-h-64">
                         {filteredVehicles.map((v) => {
-                          const id = v.id_vehicule;
+                          const id = v.id;
                           const checked = selectedVehicleIds.includes(id);
                           const label = String((v as any).label ?? id);
                           return (

@@ -12,7 +12,7 @@ services:
     env_file:
       - ./backend/.env
     environment:
-      - RODB_DATABASE_URL=postgresql://postgres:postgres@db:5432/rodb
+      - DATABASE_URL=postgresql+psycopg://postgres:postgres@db:5432/vionode
     depends_on:
       - db
     ports:
@@ -33,7 +33,7 @@ services:
   db:
     image: postgres:17-alpine
     environment:
-      - POSTGRES_DB=rodb
+      - POSTGRES_DB=vionode
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     volumes:

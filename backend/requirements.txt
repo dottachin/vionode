@@ -5,7 +5,7 @@ pydantic
 email-validator
 SQLAlchemy
 alembic
-psycopg2-binary
+psycopg[binary]
 python-dotenv
 requests
 PyJWT

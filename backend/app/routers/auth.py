@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.database import get_rodb_session
+from app.database import get_db
 from app.models.auth import User
 from app.schemas.auth import LoginRequest, TokenResponse
 from app.core.security import verify_password, make_access_token
@@ -11,7 +11,7 @@ from app.core.security import verify_password, make_access_token
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 @router.post("/login", response_model=TokenResponse)
-def login(body: LoginRequest, db: Session = Depends(get_rodb_session)):
+def login(body: LoginRequest, db: Session = Depends(get_db)):
     username = body.username.lower().strip()
     user = db.query(User).where(User.username == username).first()
     if not user or not verify_password(body.password, user.password_hash) or not user.is_active:

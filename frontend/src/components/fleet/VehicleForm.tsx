@@ -19,7 +19,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Plus, ChevronsUpDown, Check, X as XIcon, Users } from "lucide-react";
 
-const CARBURANTS = FUELS;
 
 type Props = {
   onCreated?: (v: Vehicle) => void;
@@ -37,10 +36,10 @@ type FormState = {
   height: string;
   emission_rate: string;
   max_distance_km: string;
-  conso: string;
-  carburant: string;
+  fuel_consumption: string;
+  fuel_type: string;
   driver_ids: string[];
-  equipements: string;
+  equipment: string;
   fixed_cost: string;
 };
 
@@ -56,9 +55,9 @@ const DEFAULTS: FormState = {
   height: "1",
   emission_rate: "0",
   max_distance_km: "800",
-  conso: "0.3",
-  carburant: DEFAULT_FUEL,
-  equipements: "",
+  fuel_consumption: "0.3",
+  fuel_type: DEFAULT_FUEL,
+  equipment: "",
   fixed_cost: "0",
   driver_ids: [],
 };
@@ -107,9 +106,9 @@ export default function VehicleForm({ onCreated, drivers: driversProp, depots: d
   const heightId = useId();
   const emissionId = useId();
   const distanceId = useId();
-  const consoId = useId();
-  const carburantId = useId();
-  const equipementsId = useId();
+  const fuelConsumptionId = useId();
+  const fuelTypeId = useId();
+  const equipmentId = useId();
   const fixedCostId = useId();
   const driverId = useId();
 
@@ -157,11 +156,11 @@ export default function VehicleForm({ onCreated, drivers: driversProp, depots: d
     if (Number.isNaN(maxKm)) next.max_distance_km = "Enter a valid max distance.";
     else if (maxKm <= 0) next.max_distance_km = "Max distance must be greater than 0.";
 
-    const conso = parseNumber(data.conso);
-    if (Number.isNaN(conso)) next.conso = "Enter a valid consumption.";
-    else if (conso < 0) next.conso = "Consumption cannot be negative.";
+    const fuel_consumption = parseNumber(data.fuel_consumption);
+    if (Number.isNaN(fuel_consumption)) next.fuel_consumption = "Enter a valid consumption.";
+    else if (fuel_consumption < 0) next.fuel_consumption = "Consumption cannot be negative.";
 
-    if (!data.carburant.trim()) next.carburant = "Choose a fuel.";
+    if (!data.fuel_type.trim()) next.fuel_type = "Choose a fuel.";
 
     const fixedRaw = data.fixed_cost.trim();
     if (fixedRaw !== "") {
@@ -194,10 +193,10 @@ export default function VehicleForm({ onCreated, drivers: driversProp, depots: d
       height: parseNumber(form.height),
       emission_rate: parseNumber(form.emission_rate),
       max_distance: Math.round(parseNumber(form.max_distance_km)),
-      conso: parseNumber(form.conso),
-      carburant: form.carburant,
-      equipements: form.equipements
-        ? form.equipements.split(",").map((s) => s.trim()).filter(Boolean)
+      fuel_consumption: parseNumber(form.fuel_consumption),
+      fuel_type: form.fuel_type,
+      equipment: form.equipment
+        ? form.equipment.split(",").map((s) => s.trim()).filter(Boolean)
         : [],
       fixed_cost:
         form.fixed_cost.trim() === ""
@@ -406,32 +405,32 @@ export default function VehicleForm({ onCreated, drivers: driversProp, depots: d
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <Label className="mb-2 block" htmlFor={consoId}>
+              <Label className="mb-2 block" htmlFor={fuelConsumptionId}>
                 Consommation (L/km) <span className="text-red-500">*</span>
               </Label>
               <Input
-                id={consoId}
+                id={fuelConsumptionId}
                 type="number"
                 inputMode="decimal"
                 step="0.001"
                 min="0"
-                value={form.conso}
-                aria-invalid={Boolean(errors.conso)}
-                onChange={(e) => handleChange("conso", e.target.value)}
+                value={form.fuel_consumption}
+                aria-invalid={Boolean(errors.fuel_consumption)}
+                onChange={(e) => handleChange("fuel_consumption", e.target.value)}
               />
-              {errors.conso && <p className="mt-1 text-sm text-red-600">{errors.conso}</p>}
+              {errors.fuel_consumption && <p className="mt-1 text-sm text-red-600">{errors.fuel_consumption}</p>}
             </div>
 
             <div>
-              <Label className="mb-2 block" htmlFor={carburantId}>
+              <Label className="mb-2 block" htmlFor={fuelTypeId}>
                 Fuel <span className="text-red-500">*</span>
               </Label>
-              <Select value={form.carburant} onValueChange={(val) => handleChange("carburant", val)}>
-                <SelectTrigger id={carburantId} aria-invalid={Boolean(errors.carburant)} className="w-full min-w-0">
+              <Select value={form.fuel_type} onValueChange={(val) => handleChange("fuel_type", val)}>
+                <SelectTrigger id={fuelTypeId} aria-invalid={Boolean(errors.fuel_type)} className="w-full min-w-0">
                   <SelectValue placeholder="Choose a fuel" className="truncate flex-1 min-w-0" />
                 </SelectTrigger>
                 <SelectContent>
-                  {CARBURANTS.map((c) => (
+                  {FUELS.map((c) => (
                     <SelectItem key={c} value={c} title={c} className="min-w-0">
                       <span className="block truncate">{c}</span>
                     </SelectItem>
@@ -439,20 +438,20 @@ export default function VehicleForm({ onCreated, drivers: driversProp, depots: d
                 </SelectContent>
               </Select>
 
-              {errors.carburant && <p className="mt-1 text-sm text-red-600">{errors.carburant}</p>}
+              {errors.fuel_type && <p className="mt-1 text-sm text-red-600">{errors.fuel_type}</p>}
             </div>
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <Label className="mb-2 block" htmlFor={equipementsId}>
+              <Label className="mb-2 block" htmlFor={equipmentId}>
                 Equipment (comma-separated)
               </Label>
               <Input
-                id={equipementsId}
-                value={form.equipements}
+                id={equipmentId}
+                value={form.equipment}
                 placeholder="frigo, hayon..."
-                onChange={(e) => handleChange("equipements", e.target.value)}
+                onChange={(e) => handleChange("equipment", e.target.value)}
               />
             </div>
             <div>

@@ -228,8 +228,8 @@ function MilkRunEditor({
   const allVehicleOptions = useMemo(() => {
     return (allVehicles ?? [])
       .map((v) => ({
-        id: toId((v as any).id_vehicule ?? (v as any).id ?? (v as any).vehicle_id),
-        label: toId((v as any).label || (v as any).registration || (v as any).name || (v as any).code || (v as any).id_vehicule),
+        id: toId((v as any).id ?? (v as any).vehicle_id),
+        label: toId((v as any).label || (v as any).registration || (v as any).name || (v as any).code || (v as any).id),
       }))
       .filter((v) => v.id); // IMPORTANT: filter out empties
   }, [allVehicles]);
@@ -263,7 +263,7 @@ function MilkRunEditor({
     );
   };
   const selectAllVehicles = () =>
-    setSelectedVehicleIds(normalizeIdArray((allVehicles ?? []).map((v) => (v as any).id_vehicule ?? (v as any).id)));
+    setSelectedVehicleIds(normalizeIdArray((allVehicles ?? []).map((v) => (v as any).id)));
   const clearAllVehicles = () => setSelectedVehicleIds([]);
 
   const removeSite = (id: string) => {

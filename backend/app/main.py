@@ -1,5 +1,5 @@
 from fastapi import Depends, FastAPI
-from app.database import rodb_engine, RODB_DATABASE_URL
+from app.database import engine, DATABASE_URL
 from app.deps.auth import get_current_user
 from app.models.base import Base
 import app.models 
@@ -44,11 +44,11 @@ from app.db.migrator import run_alembic_migrations
 async def _run_startup_migrations() -> None:
     """Run Alembic migrations at startup so the DB is brought up-to-date.
 
-    This reads the DB URL from app.database.RODB_DATABASE_URL and sets that on
+    This reads the DB URL from app.database.DATABASE_URL and sets that on
     the alembic config so migrations target the same DB.
     """
     try:
-        run_alembic_migrations(db_url=RODB_DATABASE_URL)
+        run_alembic_migrations(db_url=DATABASE_URL)
     except Exception as exc:  # pragma: no cover - runtime safety / logging
         # If migrations fail we log but continue — create_all is a safety net.
         print(f"Failed to run alembic migrations: {exc}")
@@ -56,7 +56,7 @@ async def _run_startup_migrations() -> None:
     # Fallback: ensure models that might not be covered by migrations are created
     # (this mirrors the previous behavior which created tables on import).
     try:
-        Base.metadata.create_all(bind=rodb_engine)
+        Base.metadata.create_all(bind=engine)
     except Exception as exc:  # pragma: no cover - runtime safety / logging
         print(f"Failed to create fallback tables via SQLAlchemy: {exc}")
 

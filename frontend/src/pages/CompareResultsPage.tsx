@@ -371,7 +371,7 @@ export default function CompareResultsPage() {
         // normalize vehicle IDs to string for consistency
         const normalizedVehicles = (vehRaw || []).map((v: any) => ({
           ...v,
-          id_vehicule: String(v.id_vehicule ?? v.id ?? v.vehicle_id ?? ""),
+          id: String(v.id ?? v.vehicle_id ?? ""),
         }));
         setVehicles(normalizedVehicles as Vehicle[]);
         setDrivers((drvRaw || []) as Driver[]);

@@ -7,16 +7,16 @@ from sqlalchemy.orm import sessionmaker, Session
 
 load_dotenv()
 
-RODB_DATABASE_URL = os.getenv("RODB_DATABASE_URL")
-if not RODB_DATABASE_URL:
-    raise ValueError("Missing RODB_DATABASE_URL environment variable")
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise ValueError("Missing DATABASE_URL environment variable")
 
-rodb_engine = create_engine(RODB_DATABASE_URL)
-RODBSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=rodb_engine)
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
-def get_rodb_session() -> Generator[Session, None, None]:
-    db = RODBSessionLocal()
+def get_db() -> Generator[Session, None, None]:
+    db = SessionLocal()
     try:
         yield db
     finally:

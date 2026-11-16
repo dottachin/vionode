@@ -4,7 +4,7 @@ from sqlalchemy import Integer, cast, text
 from sqlalchemy.orm import Session
 from typing import Dict, List
 
-from app.database import get_rodb_session
+from app.database import get_db
 from app.models.vehicle import Vehicle
 from app.models.driver import Driver
 from app.schemas.vehicle import VehicleOut, VehicleCreate, VehicleUpdate
@@ -14,16 +14,16 @@ router = APIRouter()
 
 @router.get("/vehicles", response_model=List[VehicleOut])
 def fetch_vehicles(
-    rodb: Session = Depends(get_rodb_session)
+    db: Session = Depends(get_db)
 ):
-    vehicles = rodb.query(Vehicle)\
-    .order_by(cast(Vehicle.id_vehicule, Integer))\
+    vehicles = db.query(Vehicle)\
+    .order_by(cast(Vehicle.id, Integer))\
     .all()
 
     return vehicles
 
 @router.post("/vehicles", response_model=VehicleOut)
-def create_vehicle(vehicle: VehicleCreate, db: Session = Depends(get_rodb_session)):
+def create_vehicle(vehicle: VehicleCreate, db: Session = Depends(get_db)):
     # Use ints to query Driver (Driver.id is bigint)
     drivers = db.query(Driver).filter(Driver.id.in_(vehicle.driver_ids or [])).all()
 
@@ -38,8 +38,8 @@ def create_vehicle(vehicle: VehicleCreate, db: Session = Depends(get_rodb_sessio
     return db_vehicle
 
 @router.put("/vehicles/{id}", response_model=VehicleOut)
-def update_vehicle(id: str, updates: VehicleUpdate, db: Session = Depends(get_rodb_session)):
-    vehicle = db.query(Vehicle).filter_by(id_vehicule=id).first()
+def update_vehicle(id: int, updates: VehicleUpdate, db: Session = Depends(get_db)):
+    vehicle = db.query(Vehicle).filter_by(id=id).first()
     if not vehicle:
         raise HTTPException(status_code=404, detail="Vehicle not found")
 
@@ -61,8 +61,8 @@ def update_vehicle(id: str, updates: VehicleUpdate, db: Session = Depends(get_ro
 
 
 @router.delete("/vehicles/{id}")
-def delete_vehicle(id: str, db: Session = Depends(get_rodb_session)):
-    vehicle = db.query(Vehicle).filter_by(id_vehicule=id).first()
+def delete_vehicle(id: int, db: Session = Depends(get_db)):
+    vehicle = db.query(Vehicle).filter_by(id=id).first()
     if not vehicle:
         raise HTTPException(status_code=404, detail="Vehicle not found")
     db.delete(vehicle)

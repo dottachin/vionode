@@ -7,7 +7,7 @@ import time
 import numpy as np
 
 from route_optimizer.logging_config import get_logger
-from route_optimizer.models.schemas import Driver, Order, RoutingRequest, Site, Vehicule, SiteCategoryEnum
+from route_optimizer.models.schemas import Driver, Order, RoutingRequest, Site, Vehicle, SiteCategoryEnum
 from route_optimizer.logic.matching import VehicleOrderMatcher
 from route_optimizer.logic.virtualizer import VirtualSiteGenerator
 from route_optimizer.logic.matrix import HereMatrixClient
@@ -28,7 +28,7 @@ class OptimizationResponse:
         self.steps = {}
 
 
-# kg CO₂e per liter; keys must match vehicle.carburant exactly
+# kg CO₂e per liter; keys must match vehicle.fuel_type exactly
 from route_optimizer.solver.constraints import EMISSION_FACTORS_KG_PER_L  # noqa: E402
 
 
@@ -430,7 +430,7 @@ def _sum_path(
 
 def _estimate_utilization(
     request: RoutingRequest,
-    vehicles: List[Vehicule],
+    vehicles: List[Vehicle],
 ) -> Tuple[float, float]:
     """Heuristic utilization for manual path."""
     surface_used = sum((o.floor or 0) for o in request.orders)
@@ -449,31 +449,31 @@ def _estimate_utilization(
     return max(0.0, min(1.0, s_util)), max(0.0, min(1.0, w_util))
 
 
-def _compute_co2_for_manual(distance_km: float, vehicles: List[Vehicule]) -> Tuple[float, float]:
+def _compute_co2_for_manual(distance_km: float, vehicles: List[Vehicle]) -> Tuple[float, float]:
     """
     Use the FIRST vehicle for the manual tour:
-      - v.conso: L/km
-      - v.carburant: EXACT key from EMISSION_FACTORS_KG_PER_L
+      - v.fuel_consumption: L/km
+      - v.fuel_type: EXACT key from EMISSION_FACTORS_KG_PER_L
     Returns (total_kg, avg_kg_per_km).
     """
     if distance_km <= 0 or not vehicles:
         return 0.0, 0.0
     v = vehicles[0]
     try:
-        conso = float(getattr(v, "conso", 0) or 0)
+        fuel_consumption = float(getattr(v, "fuel_consumption", 0) or 0)
     except Exception:
-        conso = 0.0
-    if conso <= 0:
-        logger.warning("Vehicle.conso (L/km) missing or invalid; CO2 will be 0")
+        fuel_consumption = 0.0
+    if fuel_consumption <= 0:
+        logger.warning("Vehicle.fuel_consumption (L/km) missing or invalid; CO2 will be 0")
         return 0.0, 0.0
-    fuel = getattr(v, "carburant", None)
+    fuel = getattr(v, "fuel_type", None)
     if not fuel or fuel not in EMISSION_FACTORS_KG_PER_L:
-        logger.warning(f"Vehicle.carburant '{fuel}' not in emission factors; CO2 = 0")
+        logger.warning(f"Vehicle.fuel_type '{fuel}' not in emission factors; CO2 = 0")
         return 0.0, 0.0
 
     factor = EMISSION_FACTORS_KG_PER_L[fuel]  # kg/L
-    total_kg = conso * distance_km * factor                # (L/km) * (km) * (kg/L)
-    avg_kg_per_km = conso * factor                         # (L/km) * (kg/L)
+    total_kg = fuel_consumption * distance_km * factor                # (L/km) * (km) * (kg/L)
+    avg_kg_per_km = fuel_consumption * factor                         # (L/km) * (kg/L)
     return float(total_kg), float(avg_kg_per_km)
 
 
@@ -494,7 +494,7 @@ def get_order_vehicle_id(o: Order) -> Optional[str]:
     - o.vehicle_id
     - o.vehicule_id
     - o.metadata['vehicle_id']
-    Returns the exact string expected to match Vehicule.id_vehicule.
+    Returns the exact string expected to match Vehicle.id.
     """
     try:
         # direct attributes
@@ -535,30 +535,30 @@ def _build_manual_sequence_for_vehicle(
     return seq
 
 
-def _compute_co2_for_vehicle(distance_km: float, vehicle: Vehicule) -> Tuple[float, float]:
+def _compute_co2_for_vehicle(distance_km: float, vehicle: Vehicle) -> Tuple[float, float]:
     """
     CO2 for a given vehicle and distance:
-      vehicle.conso: L/km
-      vehicle.carburant: EXACT key from EMISSION_FACTORS_KG_PER_L
+      vehicle.fuel_consumption: L/km
+      vehicle.fuel_type: EXACT key from EMISSION_FACTORS_KG_PER_L
     Returns (total_kg, avg_kg_per_km).
     """
     if distance_km <= 0 or vehicle is None:
         return 0.0, 0.0
     try:
-        conso = float(getattr(vehicle, "conso", 0) or 0)
+        fuel_consumption = float(getattr(vehicle, "fuel_consumption", 0) or 0)
     except Exception:
-        conso = 0.0
-    if conso <= 0:
-        logger.warning(f"Vehicle {getattr(vehicle,'id_vehicule','')} conso (L/km) missing or invalid; CO2 will be 0")
+        fuel_consumption = 0.0
+    if fuel_consumption <= 0:
+        logger.warning(f"Vehicle {getattr(vehicle,'id','')} fuel_consumption (L/km) missing or invalid; CO2 will be 0")
         return 0.0, 0.0
-    fuel = getattr(vehicle, "carburant", None)
+    fuel = getattr(vehicle, "fuel_type", None)
     if not fuel or fuel not in EMISSION_FACTORS_KG_PER_L:
-        logger.warning(f"Vehicle {getattr(vehicle,'id_vehicule','')} carburant '{fuel}' not in emission factors; CO2 = 0")
+        logger.warning(f"Vehicle {getattr(vehicle,'id','')} fuel_type '{fuel}' not in emission factors; CO2 = 0")
         return 0.0, 0.0
 
     factor = EMISSION_FACTORS_KG_PER_L[fuel]  # kg/L
-    total_kg = conso * distance_km * factor
-    avg_kg_per_km = conso * factor
+    total_kg = fuel_consumption * distance_km * factor
+    avg_kg_per_km = fuel_consumption * factor
     return float(total_kg), float(avg_kg_per_km)
 
 
@@ -629,7 +629,7 @@ async def manual_stats(request: RoutingRequest) -> Dict[str, Any]:
 
         # Index helpers
         site_by_id = {s.id: s for s in all_sites}
-        veh_by_id = {v.id_vehicule: v for v in request.vehicles}
+        veh_by_id = {v.id: v for v in request.vehicles}
 
         # Group orders by assigned vehicle
         vehicle_to_orders: Dict[str, List[Order]] = {}
@@ -659,7 +659,7 @@ async def manual_stats(request: RoutingRequest) -> Dict[str, Any]:
 
         # Build one route per vehicle (in input order of vehicles)
         for v in request.vehicles:
-            veh_id = v.id_vehicule
+            veh_id = v.id
             orders_v = vehicle_to_orders.get(veh_id, [])
             if not orders_v:
                 continue
@@ -894,7 +894,7 @@ def prepare_site_list(
 
 
 def calculate_route_times(
-    vehicles: List[Vehicule], drivers: List[Driver]
+    vehicles: List[Vehicle], drivers: List[Driver]
 ) -> Dict[str, int]:
     """Sum driver max_daily_service_hours per vehicle -> seconds."""
     result: Dict[str, int] = {}
@@ -912,5 +912,5 @@ def calculate_route_times(
                 total_hours = 12
         else:
             total_hours = 12
-        result[v.id_vehicule] = int(total_hours * 3600)
+        result[v.id] = int(total_hours * 3600)
     return result

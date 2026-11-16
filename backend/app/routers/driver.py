@@ -2,18 +2,18 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 
-from app.database import get_rodb_session
+from app.database import get_db
 from app.models.driver import Driver
 from app.schemas.driver import DriverCreate, DriverOut, DriverUpdate
 
 router = APIRouter()
 
 @router.get("/drivers", response_model=List[DriverOut])
-def fetch_drivers(db: Session = Depends(get_rodb_session)):
+def fetch_drivers(db: Session = Depends(get_db)):
     return db.query(Driver).all()
 
 @router.post("/drivers", response_model=DriverOut)
-def create_driver(driver: DriverCreate, db: Session = Depends(get_rodb_session)):
+def create_driver(driver: DriverCreate, db: Session = Depends(get_db)):
     db_driver = Driver(**driver.model_dump())
     db.add(db_driver)
     db.commit()
@@ -21,7 +21,7 @@ def create_driver(driver: DriverCreate, db: Session = Depends(get_rodb_session))
     return db_driver
 
 @router.put("/drivers/{id}", response_model=DriverOut)
-def update_driver(id: int, updates: DriverUpdate, db: Session = Depends(get_rodb_session)):
+def update_driver(id: int, updates: DriverUpdate, db: Session = Depends(get_db)):
     driver = db.query(Driver).filter_by(id=id).first()
     if not driver:
         raise HTTPException(status_code=404, detail="Driver not found")
@@ -32,7 +32,7 @@ def update_driver(id: int, updates: DriverUpdate, db: Session = Depends(get_rodb
     return driver
 
 @router.delete("/drivers/{id}")
-def delete_driver(id: int, db: Session = Depends(get_rodb_session)):
+def delete_driver(id: int, db: Session = Depends(get_db)):
     driver = db.query(Driver).filter_by(id=id).first()
     if not driver:
         raise HTTPException(status_code=404, detail="Driver not found")

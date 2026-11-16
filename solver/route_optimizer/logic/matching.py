@@ -3,9 +3,9 @@ from typing import List, Dict, Set
 from dataclasses import dataclass
 from pydantic import validate_arguments
 from route_optimizer.models.schemas import (
-    Vehicule,
+    Vehicle,
     Order,
-    EquipementEnum,
+    EquipmentEnum,
 )
 
 logger = get_logger(__name__)
@@ -16,13 +16,13 @@ class CompatibilityResult:
     """Detailed result of vehicle-order compatibility check"""
 
     is_compatible: bool
-    missing_equipment: Set[EquipementEnum]
+    missing_equipment: Set[EquipmentEnum]
     hazardous_material_issues: bool
     capacity_violation: bool
 
 
 class VehicleOrderMatcher:
-    def __init__(self, vehicles: List[Vehicule], orders: List[Order]):
+    def __init__(self, vehicles: List[Vehicle], orders: List[Order]):
         logger.debug("Initializing VehicleOrderMatcher")
         logger.debug(f"Received {len(vehicles)} vehicles and {len(orders)} orders")
 
@@ -39,7 +39,7 @@ class VehicleOrderMatcher:
         self._skip = False
         self.vehicles = vehicles
         self.orders = orders
-        self.vehicle_lookup = {v.id_vehicule: v for v in vehicles}
+        self.vehicle_lookup = {v.id: v for v in vehicles}
 
         logger.debug(
             "Vehicle lookup created with IDs: %s", list(self.vehicle_lookup.keys())
@@ -72,14 +72,14 @@ class VehicleOrderMatcher:
             order_results = {}
             for vehicle in self.vehicles:
                 logger.debug(
-                    "Checking compatibility with vehicle %s", vehicle.id_vehicule
+                    "Checking compatibility with vehicle %s", vehicle.id
                 )
                 result = self._check_compatibility(vehicle, order)
-                order_results[vehicle.id_vehicule] = result
+                order_results[vehicle.id] = result
                 logger.debug(
                     "Compatibility result for order %s with vehicle %s: %s",
                     order.order_id,
-                    vehicle.id_vehicule,
+                    vehicle.id,
                     {
                         "is_compatible": result.is_compatible,
                         "missing_equipment": result.missing_equipment,
@@ -125,33 +125,33 @@ class VehicleOrderMatcher:
         return compatible_vehicles
 
     def _check_compatibility(
-        self, vehicle: Vehicule, order: Order
+        self, vehicle: Vehicle, order: Order
     ) -> CompatibilityResult:
         """Perform comprehensive compatibility check between vehicle and order"""
         logger.debug(
             "Checking compatibility between vehicle %s and order %s",
-            vehicle.id_vehicule,
+            vehicle.id,
             order.order_id,
         )
 
         # Check equipment requirements
         missing_equipment = {
-            req for req in order.required_utilities if req not in vehicle.equipements
+            req for req in order.required_utilities if req not in vehicle.equipment
         }
         logger.debug(
             "Missing equipment for vehicle %s: %s",
-            vehicle.id_vehicule,
+            vehicle.id,
             missing_equipment,
         )
 
         # Check hazardous materials
         hazmat_issues = (
             bool(order.hazardous_types)
-            and EquipementEnum.HAZARDOUS_MATERIAL_CONTAINER not in vehicle.equipements
+            and EquipmentEnum.HAZARDOUS_MATERIAL_CONTAINER not in vehicle.equipment
         )
         logger.debug(
             "Hazardous material issues for vehicle %s: %s (order has hazmat: %s)",
-            vehicle.id_vehicule,
+            vehicle.id,
             hazmat_issues,
             bool(order.hazardous_types),
         )
@@ -160,7 +160,7 @@ class VehicleOrderMatcher:
         capacity_violation = order.floor > vehicle.surface
         logger.debug(
             "Capacity violation for vehicle %s: %s (order floor: %s, vehicle surface: %s)",
-            vehicle.id_vehicule,
+            vehicle.id,
             capacity_violation,
             order.floor,
             vehicle.surface,
@@ -171,7 +171,7 @@ class VehicleOrderMatcher:
         )
         logger.debug(
             "Overall compatibility for vehicle %s: %s",
-            vehicle.id_vehicule,
+            vehicle.id,
             is_compatible,
         )
 

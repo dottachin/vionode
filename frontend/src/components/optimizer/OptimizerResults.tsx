@@ -608,7 +608,7 @@ function OptimizerResults({
   const vehicleMap = useMemo(() => {
     const m = new Map<string, Vehicle>();
     for (const v of vehicles ?? []) {
-      const id = String((v as any).id_vehicule ?? (v as any).id ?? (v as any).vehicle_id);
+      const id = String((v as any).id ?? (v as any).vehicle_id);
       m.set(id, v);
     }
     return m;

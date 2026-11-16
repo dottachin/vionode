@@ -36,9 +36,8 @@ type Props = {
   onDelete?: (id: string) => Promise<void> | void;
 };
 
-type VehicleFormState = Omit<Partial<Vehicle>, 'equipements'> & { equipements?: string | string[] };
+type VehicleFormState = Omit<Partial<Vehicle>, 'equipment'> & { equipment?: string | string[] };
 
-const CARBURANTS = FUELS;
 
 const VehicleList = ({ vehicles, drivers, depots, onUpdate, onDelete }: Props) => {
   const driverMap = useMemo(() => {
@@ -98,7 +97,7 @@ const VehicleList = ({ vehicles, drivers, depots, onUpdate, onDelete }: Props) =
             <TableBody>
               {vehicles.map((v) => {
                 const driverNames = (v.driver_ids || []).map((id) => driverMap.get(String(id)) ?? String(id));
-                const idStr = String(v.id_vehicule);
+                const idStr = String(v.id);
                 const depotLabel =
                   depotMap.get(String((v as any).depot_id)) ??
                   ((v as any).depot_id ? String((v as any).depot_id) : "-");
@@ -121,10 +120,10 @@ const VehicleList = ({ vehicles, drivers, depots, onUpdate, onDelete }: Props) =
                       {typeof v.max_distance === "number" ? nf.format(v.max_distance) : "—"}
                     </TableCell>
                     <TableCell className="text-right">
-                      {typeof (v as any).conso === "number" ? nf.format((v as any).conso) : (v as any).conso ?? "—"}
+                      {typeof (v as any).fuel_consumption === "number" ? nf.format((v as any).fuel_consumption) : (v as any).fuel_consumption ?? "—"}
                     </TableCell>
                     <TableCell className="text-muted-foreground">
-                      {(v as any).carburant ?? "—"}
+                      {(v as any).fuel_type ?? "—"}
                     </TableCell>
                     <TableCell>
                       {driverNames.length ? (
@@ -247,12 +246,12 @@ function EditVehicleDialog({
     weight: Number(vehicle.weight),
     surface: vehicle.surface,
     max_distance: vehicle.max_distance,
-    conso: (vehicle as any).conso,
-    carburant: (vehicle as any).carburant,
+    fuel_consumption: (vehicle as any).fuel_consumption,
+    fuel_type: (vehicle as any).fuel_type,
     length: (vehicle as any).length,
     height: (vehicle as any).height,
-    equipements: Array.isArray((vehicle as any).equipements)
-  ? ((vehicle as any).equipements as any[]).join(", ")
+    equipment: Array.isArray((vehicle as any).equipment)
+  ? ((vehicle as any).equipment as any[]).join(", ")
   : "",
     fixed_cost: (vehicle as any).fixed_cost,
     driver_ids: (vehicle.driver_ids ?? []).map((x: any) =>
@@ -262,7 +261,7 @@ function EditVehicleDialog({
 
   const nf = useMemo(() => new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }), []);
 
-  const setNum = (key: keyof Vehicle | "conso", raw: string) => {
+  const setNum = (key: keyof Vehicle | "fuel_consumption", raw: string) => {
     const val = raw.trim() === "" ? undefined : Number(raw.replace(",", "."));
     setForm((f) => ({ ...f, [key]: Number.isFinite(val) ? (val as any) : undefined }));
   };
@@ -300,21 +299,21 @@ function EditVehicleDialog({
           typeof form.max_distance === "number" && form.max_distance >= 0
             ? Math.round(form.max_distance)
             : undefined,
-        conso:
-          typeof (form as any).conso === "number" && (form as any).conso >= 0
-            ? (form as any).conso
-            : (typeof (form as any).conso === "string" && (form as any).conso.trim() !== ""
-                ? Number((form as any).conso.replace(",", "."))
+        fuel_consumption:
+          typeof (form as any).fuel_consumption === "number" && (form as any).fuel_consumption >= 0
+            ? (form as any).fuel_consumption
+            : (typeof (form as any).fuel_consumption === "string" && (form as any).fuel_consumption.trim() !== ""
+                ? Number((form as any).fuel_consumption.replace(",", "."))
                 : undefined),
-        carburant: typeof (form as any).carburant === "string" ? (form as any).carburant : undefined,
-        equipements:
-          typeof (form as any).equipements === "string"
-            ? (form as any).equipements
+        fuel_type: typeof (form as any).fuel_type === "string" ? (form as any).fuel_type : undefined,
+        equipment:
+          typeof (form as any).equipment === "string"
+            ? (form as any).equipment
                 .split(",")
                 .map((s: string) => s.trim())
                 .filter(Boolean)
-            : Array.isArray((form as any).equipements)
-            ? ((form as any).equipements as any[])
+            : Array.isArray((form as any).equipment)
+            ? ((form as any).equipment as any[])
             : undefined,
         fixed_cost:
           typeof (form as any).fixed_cost === "number" && (form as any).fixed_cost >= 0
@@ -347,12 +346,12 @@ function EditVehicleDialog({
             weight: vehicle.weight,
             surface: vehicle.surface,
             max_distance: vehicle.max_distance,
-            conso: (vehicle as any).conso as number,
-            carburant: (vehicle as any).carburant as string | undefined,
+            fuel_consumption: (vehicle as any).fuel_consumption as number,
+            fuel_type: (vehicle as any).fuel_type as string | undefined,
             length: (vehicle as any).length,
             height: (vehicle as any).height,
-            equipements: Array.isArray((vehicle as any).equipements)
-              ? ((vehicle as any).equipements as any[]).join(", ")
+            equipment: Array.isArray((vehicle as any).equipment)
+              ? ((vehicle as any).equipment as any[]).join(", ")
               : "",
             fixed_cost: (vehicle as any).fixed_cost as number | undefined,
             driver_ids: (vehicle.driver_ids ?? []).map((x: any) =>
@@ -366,7 +365,7 @@ function EditVehicleDialog({
       <DialogContent className="sm:max-w-[560px]">
             <DialogHeader>
           <DialogTitle>Edit vehicle</DialogTitle>
-          <DialogDescription>ID : {`${String((vehicle as any).id_vehicule ?? "")}`}</DialogDescription>
+          <DialogDescription>ID : {`${String((vehicle as any).id ?? "")}`}</DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-4 py-2">
@@ -471,27 +470,27 @@ function EditVehicleDialog({
           </div>
 
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="conso" className="text-right">Conso (L/km)</Label>
+            <Label htmlFor="fuel_consumption" className="text-right">Conso (L/km)</Label>
             <Input
-              id="conso"
+              id="fuel_consumption"
               inputMode="decimal"
               className="col-span-3"
-              value={(form as any).conso ?? ""}
-              onChange={(e) => setNum("conso", e.target.value)}
+              value={(form as any).fuel_consumption ?? ""}
+              onChange={(e) => setNum("fuel_consumption", e.target.value)}
               placeholder="ex: 0.3"
             />
           </div>
 
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="carburant" className="text-right">Fuel</Label>
+            <Label htmlFor="fuel_type" className="text-right">Fuel</Label>
             <select
-              id="carburant"
+              id="fuel_type"
               className="col-span-3 h-9 rounded-md border bg-background px-3 text-sm"
-              value={(form as any).carburant ?? ""}
-              onChange={(e) => setForm((f) => ({ ...f, carburant: e.target.value as any }))}
+              value={(form as any).fuel_type ?? ""}
+              onChange={(e) => setForm((f) => ({ ...f, fuel_type: e.target.value as any }))}
             >
               <option value="" disabled>Choose…</option>
-              {CARBURANTS.map((c) => (
+              {FUELS.map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>
