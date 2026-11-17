@@ -1,3 +1,19 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/logo-dark.svg">
+    <img src="assets/logo.svg" alt="Vionode" width="420">
+  </picture>
+</p>
+
+<p align="center">
+  <img alt="License: All rights reserved" src="https://img.shields.io/badge/license-All%20rights%20reserved-red">
+  <img alt="Status: Portfolio - view only" src="https://img.shields.io/badge/status-portfolio%20%C2%B7%20view%20only-0f172a">
+</p>
+
+> [!IMPORTANT]
+> **This is proprietary software, shown for portfolio purposes only.**
+> You may view the code, but you may not copy, run, modify, distribute or sell any part of it without written permission. See [LICENSE](LICENSE).
+
 # Vionode
 
 **Vionode** is a vehicle routing and fleet optimization platform. You describe your fleet (vehicles and drivers), your locations (depots, clients, suppliers…) and the work to be done (orders or milk-run stops). Vionode then calculates efficient routes that respect real-world constraints such as vehicle capacity, opening hours, driver working time, special equipment and hazardous goods. It can minimise **distance**, **driving time** or **CO₂ emissions**.
@@ -23,6 +39,7 @@ Real road distances and travel times come from the **HERE Matrix Routing API**. 
 13. [Production deployment (Traefik)](#production-deployment-traefik)
 14. [Testing](#testing)
 15. [Troubleshooting](#troubleshooting)
+16. [License](#license)
 
 ---
 
@@ -473,3 +490,23 @@ python -m pytest -v
 | Optimizations take too long | Use `solver_mode: "fast"`, or reduce the problem size. Repeating the same sites is quicker because of the matrix cache. |
 | `npm ci` fails with peer-dependency errors | Add `--legacy-peer-deps`. |
 | `db.dump` was not restored | The restore script only runs on an **empty** volume. Run `docker compose down -v` (this deletes all data) and start again. |
+
+---
+
+## License
+
+**Copyright © 2026 dottachin. All rights reserved.**
+
+Vionode is proprietary software. The source code is public **only so it can be viewed** as part of a portfolio. It is **not** open source.
+
+Without prior written permission, you may not:
+
+- copy or download the code, in whole or in part
+- use, run, deploy or host it
+- modify it or build derivative works from it
+- distribute, sublicense or sell it
+- use it to train AI models or to build competing products
+
+The name "Vionode" and its logo are also not licensed for use. Read the full terms in [LICENSE](LICENSE).
+
+For licensing or purchase inquiries, contact me through [my GitHub profile](https://github.com/dottachin).
